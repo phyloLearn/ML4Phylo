@@ -3,7 +3,7 @@ import os
 
 from tqdm import tqdm
 
-from ml4phylo.data import load_alignment
+from data import load_alignment
 
 
 def is_fasta(path: str) -> bool:
@@ -15,7 +15,12 @@ def alignment_encoding(aln_dir: str):
         base = aln.split(".")[0]
         pbar.set_description(f"Processing {base}")
 
-        load_alignment(os.path.join(aln_dir, aln))
+        tensor, ids = load_alignment(os.path.join(aln_dir, aln))
+
+        print("TENSOR:")
+        print(tensor)
+        print("IDS:")
+        print(ids)
 
 
 def main():

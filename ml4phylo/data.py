@@ -7,7 +7,7 @@ from Bio import SeqIO
 AMINO_ACIDS = np.array(list("ARNDCQEGHILKMFPSTWYVX-"))
 
 def load_alignment(path: str) -> Tuple[torch.Tensor, List[str]]:
-    """Loads an alignment into a tensor digestible by the Phyloformer network
+    """Loads an alignment into a tensor digestible by the Ml4Phylo network
 
     Parameters
     ----------
