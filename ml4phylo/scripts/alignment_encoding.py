@@ -1,7 +1,5 @@
 import argparse
-import os
-
-from tqdm import tqdm
+import os   
 
 from data import load_alignment
 
@@ -11,9 +9,7 @@ def is_fasta(path: str) -> bool:
 
 
 def alignment_encoding(aln_dir: str):
-    for aln in (pbar := tqdm([file for file in os.listdir(aln_dir) if is_fasta(file)])):
-        base = aln.split(".")[0]
-        pbar.set_description(f"Processing {base}")
+    for aln in [file for file in os.listdir(aln_dir) if is_fasta(file)]:
 
         tensor, ids = load_alignment(os.path.join(aln_dir, aln))
 
@@ -21,7 +17,6 @@ def alignment_encoding(aln_dir: str):
         print(tensor)
         print("IDS:")
         print(ids)
-
 
 def main():
     parser = argparse.ArgumentParser(
