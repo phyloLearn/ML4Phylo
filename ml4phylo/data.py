@@ -4,7 +4,8 @@ import numpy as np
 import torch
 from Bio import SeqIO
 
-AMINO_ACIDS = np.array(list("ARNDCQEGHILKMFPSTWYVX-"))
+AMINO_ACIDS = np.array(list("ATGC"))
+# AMINO_ACIDS = np.array(list("ARNDCQEGHILKMFPSTWYVX-"))
 
 def load_alignment(path: str) -> Tuple[torch.Tensor, List[str]]:
     """Loads an alignment into a tensor digestible by the Ml4Phylo network
@@ -26,8 +27,8 @@ def load_alignment(path: str) -> Tuple[torch.Tensor, List[str]]:
     tensor = []
     parsed = _parse_alignment(path)
     for sequence in parsed.values():
-        tensor.append(
-            torch.from_numpy(_sequence_to_one_hot(sequence)).t().view(22, 1, -1)
+        tensor.append(                                              
+            torch.from_numpy(_sequence_to_one_hot(sequence)).t().view(4, 1, -1) # Change back to 22
         )
 
     return torch.cat(tensor, dim=1).transpose(-1, -2), list(parsed.keys())
