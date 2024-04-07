@@ -11,12 +11,8 @@ def is_fasta(path: str) -> bool:
 def alignment_encoding(aln_dir: str):
     for aln in [file for file in os.listdir(aln_dir) if is_fasta(file)]:
 
-        tensor, ids = load_alignment(os.path.join(aln_dir, aln))
-
-        print("TENSOR:")
-        print(tensor)
-        print("IDS:")
-        print(ids)
+        # This function is applied to every fasta file present the input directory
+        tensor, ids = load_alignment(os.path.join(aln_dir, aln), True)
 
 def main():
     parser = argparse.ArgumentParser(
