@@ -34,8 +34,8 @@ def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[s
     # Iterate over all the sequences present in the dictionary
     for sequence in parsed.values():
         """
-            Encodes every sequence obtaining a matrix with 2 dimensions (alphabet_size, sequence_length)
-            This matrix presents binary values that represent for each char of the sequence its corresponding
+            Encodes every sequence obtaining a matrix with 2 dimensions (sequence_length, alphabet_size)
+            This matrix stores binary values that represent for each char of the sequence its corresponding
             amino acid or nucleotide.
         """
         one_hot = _sequence_to_one_hot(sequence, isNucleotides)
@@ -43,7 +43,7 @@ def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[s
         print("One hot encoded seq:")
         print(one_hot)
 
-        # Creates a tensor from the encoded sequence inverting his dimension to (sequence_length, alphabet_size)
+        # Creates a tensor from the encoded sequence inverting his dimension to (alphabet_size, sequence_length)
         tensor = torch.from_numpy(one_hot).t()
 
         print("Tensor obtained from the encoded seq:")
@@ -64,11 +64,8 @@ def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[s
 
     """
         Concats all the tensors present in the list.
-        As tensors are made up of 3 dimensions (alphabet_size, 1, seq_length), it presents (alphabet_size) layers.
-        The concatenation is done between these layers, resulting in a tensor with (n_seqs) values in each layer.
-        Each of these values have a dimension of (seq_length).
-
-        At the end of this process we get a tensor with dimensions (alphabet_size, n_seqs, seq_length)
+        As tensors are made up of 3 dimensions (alphabet_size, 1, seq_length), it has (alphabet_size) layers in depth.
+        The concatenation between tensors, results in a tensor with dimensions (alphabet_size, n_seqs, seq_length).
     """
     concated_tensors = torch.cat(tensor_list, dim=1)
 
