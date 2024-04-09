@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import torch
 from Bio import SeqIO
+from utils import println
 
 NUCLEOTIDES = np.array(list("ATGC")) # used for our alignment example
 AMINO_ACIDS = np.array(list("ARNDCQEGHILKMFPSTWYVX-"))
@@ -23,13 +24,14 @@ def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[s
          - a list of ids of the sequences in the alignment
 
     """
+    print("--------------ENCODING--------------")
+
     # check if the sequences use the aminoacids alphabet or the nucleotides
     alphabet_size = len(NUCLEOTIDES) if isNucleotides else len(AMINO_ACIDS)
     tensor_list = []
     parsed = _parse_alignment(path)
 
-    print("Alignment parsed:")
-    print(parsed)
+    println("Alignment parsed:", parsed)
 
     # Iterate over all the sequences present in the dictionary
     for sequence in parsed.values():
@@ -40,37 +42,33 @@ def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[s
         """
         one_hot = _sequence_to_one_hot(sequence, isNucleotides)
 
-        print("One hot encoded seq:")
-        print(one_hot)
+        println("One hot encoded seq:", one_hot)
 
         # Creates a tensor from the encoded sequence inverting his dimension to (alphabet_size, sequence_length)
         tensor = torch.from_numpy(one_hot).t()
 
-        print("Tensor obtained from the encoded seq:")
-        print(tensor)
+        println("Tensor obtained from the encoded seq:", tensor)
 
         # Reshapes the tensor to a 3-dimensional one
         reshaped_tensor = tensor.view(alphabet_size, 1, -1)
 
-        print("Reshaped:")
-        print(reshaped_tensor)
+        println("Reshaped:", reshaped_tensor)
 
         tensor_list.append(                                              
             reshaped_tensor
         )
 
-    print("All sequences:")
-    print(tensor_list)    
+    println("All sequences:", tensor_list)
 
     """
         Concats all the tensors present in the list.
-        As tensors are made up of 3 dimensions (alphabet_size, 1, seq_length), it has (alphabet_size) layers in depth.
-        The concatenation between tensors, results in a tensor with dimensions (alphabet_size, n_seqs, seq_length).
+        As tensors are made up of 3 dimensions (alphabet_size, 1, seq_length), it presents (alphabet_size) matrixes.
+        After the concatenation the obtained tensor has matrixes with dimension (seq_length, n_seqs), leading to
+        a tensor of dimensions (alphabet_size, n_seqs, seq_length).
     """
     concated_tensors = torch.cat(tensor_list, dim=1)
 
-    print("All tensors concat:")
-    print(concated_tensors)
+    println("All tensors concat:", concated_tensors)
 
     """
         Finally, the transpose of the last two dimensions is performed,
@@ -78,9 +76,9 @@ def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[s
     """
     final_tensor = concated_tensors.transpose(-1, -2)
 
-    print("Final Tensor:")
-    print(final_tensor)
+    println("Final Tensor:", final_tensor)
 
+    print("--------------ENCODING DONE--------------")
     return final_tensor, list(parsed.keys())
 
 
@@ -111,7 +109,7 @@ def _sequence_to_one_hot(seq: str, isNucleotides: bool) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Encoded sequence (shape 22\*seq_len)
+        Encoded sequence (shape 22 * seq_len)
     """
     alphabet = NUCLEOTIDES if isNucleotides else AMINO_ACIDS
     return np.array([(alphabet == char).astype(int) for char in seq])
