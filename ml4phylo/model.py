@@ -83,6 +83,9 @@ class AttentionNet(nn.Module):
         
     def _init_seq2pair(self, n_seqs: int, seq_len: int):
         """Initialize Seq2Pair matrix"""
+
+        print("------------Seq2Pair------------")
+
         self.n_seqs = n_seqs
         self.seq_len = seq_len
 
@@ -115,6 +118,8 @@ class AttentionNet(nn.Module):
                 k = k + 1
 
         println("Seq2Pair tensor:", seq2pair)
+
+        print("------------Seq2Pair Done------------")
 
         self.seq2pair = seq2pair.to(self.device)
 

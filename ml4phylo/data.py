@@ -63,7 +63,7 @@ def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[s
     """
         Concats all the tensors present in the list.
         As tensors are made up of 3 dimensions (alphabet_size, 1, seq_length), it presents (alphabet_size) matrixes.
-        After the concatenation the obtained tensor has matrixes with dimension (seq_length, n_seqs), leading to
+        After the concatenation the obtained tensor has matrixes with dimension (n_seqs, seq_length), leading to
         a tensor of dimensions (alphabet_size, n_seqs, seq_length).
     """
     concated_tensors = torch.cat(tensor_list, dim=1)
