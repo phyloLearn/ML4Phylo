@@ -1,4 +1,4 @@
-"""The phyloformer module contains the Phyloformer network as well as functions to 
+"""The ML4Phylo module contains the ML4Phylo network as well as functions to 
 create and load instances of the network from disk
 """
 from typing import Any, Dict, List, Tuple
@@ -19,8 +19,8 @@ class AttentionNet(nn.Module):
         h_dim: int = 64,
         dropout: float = 0.0,
         device: str = "cpu",
-        n_seqs: int = 3,
-        seq_len: int = 7,
+        n_seqs: int = 3, #CHANGE LATER
+        seq_len: int = 7, #CHANGE LATER
         **kwargs
     ):
         """Initializes internal Module state
@@ -76,7 +76,7 @@ class AttentionNet(nn.Module):
         self.fNNs = nn.ModuleList()
 
         layers_1_1 = [
-            nn.Conv2d(in_channels=22, out_channels=h_dim, kernel_size=1, stride=1),
+            nn.Conv2d(in_channels=4, out_channels=h_dim, kernel_size=1, stride=1), #CHANGE CHANNELS LATER
             nn.ReLU(),
         ]
         self.block_1_1 = nn.Sequential(*layers_1_1)

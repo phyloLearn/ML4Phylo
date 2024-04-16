@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=(
             "Predict phylogenetic trees from MSAs "
-            "using the Phyloformer neural network"
+            "using the ML4Phylo neural network"
         )
     )
     parser.add_argument(
