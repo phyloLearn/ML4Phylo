@@ -49,7 +49,7 @@ class TensorDataset(Dataset):
         return pair["X"], pair["y"]
 
 
-def load_alignment(path: str, isNucleotides: bool) -> Tuple[torch.Tensor, List[str]]:
+def load_alignment(path: str, isNucleotides: bool = False) -> Tuple[torch.Tensor, List[str]]:
     """Loads an alignment into a tensor digestible by the Ml4Phylo network
 
     Parameters

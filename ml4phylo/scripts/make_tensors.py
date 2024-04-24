@@ -14,7 +14,7 @@ def make_tensors(tree_dir: str, aln_dir: str, out_dir: str, isExample: bool):
         identifier = tree_file.rstrip(".nwk")
         pbar.set_description(f"Processing {identifier}")
         tree_tensor, _ = load_tree(os.path.join(tree_dir, tree_file))
-        aln_tensor, _ = load_alignment(os.path.join(aln_dir, f"{identifier if not isExample else "small_alignment"}.fasta"), True)
+        aln_tensor, _ = load_alignment(os.path.join(aln_dir, f"{identifier if not isExample else "small_alignment"}.fasta"), isExample)
 
         torch.save(
             {"X": aln_tensor, "y": tree_tensor},

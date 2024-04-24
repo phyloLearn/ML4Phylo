@@ -1,12 +1,16 @@
 """The ML4Phylo module contains the ML4Phylo network as well as functions to 
 create and load instances of the network from disk
 """
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
+import skbio
 import torch
 import torch.nn as nn
+from ete3 import Tree
 from scipy.special import binom
+
 from utils import println
+from attentions import KernelAxialMultiAttention
 
 
 class AttentionNet(nn.Module):
@@ -19,8 +23,8 @@ class AttentionNet(nn.Module):
         h_dim: int = 64,
         dropout: float = 0.0,
         device: str = "cpu",
-        n_seqs: int = 3, #CHANGE LATER
-        seq_len: int = 7, #CHANGE LATER
+        n_seqs: int = 20,
+        seq_len: int = 200,
         **kwargs
     ):
         """Initializes internal Module state
@@ -75,12 +79,144 @@ class AttentionNet(nn.Module):
         self.layernorms = nn.ModuleList()
         self.fNNs = nn.ModuleList()
 
+        # Position wise fully connected layer from pair wise averaging procedure
         layers_1_1 = [
-            nn.Conv2d(in_channels=4, out_channels=h_dim, kernel_size=1, stride=1), #CHANGE CHANNELS LATER
+            nn.Conv2d(in_channels=22, out_channels=h_dim, kernel_size=1, stride=1),
             nn.ReLU(),
         ]
         self.block_1_1 = nn.Sequential(*layers_1_1)
         
+        # Normalization layer
+        self.norm = nn.LayerNorm(h_dim)
+
+        # Position wise fully connected layer from site wise averaging procedure
+        self.pwFNN = nn.Sequential(
+            *[
+                nn.Conv2d(in_channels=h_dim, out_channels=1, kernel_size=1, stride=1),
+                nn.Dropout(dropout),
+                nn.Softplus(),
+            ]
+        )
+
+        for i in range(self.n_blocks):
+            self.rowAttentions.append(
+                KernelAxialMultiAttention(h_dim, n_heads, n=seq_len).to(device)
+            )
+            self.columnAttentions.append(
+                KernelAxialMultiAttention(h_dim, n_heads, n=int(binom(n_seqs, 2))).to(device)
+            )
+            self.layernorms.append(nn.LayerNorm(h_dim).to(device))
+            self.fNNs.append(
+                nn.Sequential(
+                    *[
+                        nn.Conv2d(
+                            in_channels=h_dim,
+                            out_channels=h_dim * 4,
+                            kernel_size=1,
+                            stride=1,
+                            device=device,
+                        ),
+                        nn.Dropout(dropout),
+                        nn.GELU(),
+                        nn.Conv2d(
+                            in_channels=h_dim * 4,
+                            out_channels=h_dim,
+                            kernel_size=1,
+                            stride=1,
+                            device=device,
+                        ),
+                    ],
+                    nn.Dropout(dropout)
+                )
+            )
+
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, List[Any]]:
+        """Does a forward pass through the ML4Phylo network
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor (shape 1\*22\*n_seqs\*seq_len)
+
+        Returns
+        -------
+        torch.Tensor
+            Output tensor (shape 1\*n_pairs)
+        List[Any]
+            Attention maps
+
+        Raises
+        ------
+        ValueError
+            If the tensors aren't the right shape
+        """
+        attentionmaps = []
+        # 2D convolution that gives us the features in the third dimension
+        # (i.e. initial embedding of each amino acid)
+        out = self.block_1_1(x) # [4, 64, 200, 20]
+
+        println("Model after first layer:", out.size())
+
+        # Pair representation
+        out = torch.matmul(self.seq2pair, out.transpose(-1, -2)) # [4, 64, 190, 200]
+
+        println("Pair representation:", out.size())
+
+        # From here on the tensor has shape = (batch_size,features,nb_pairs,seq_len), all
+        # the transpose/permute allow to apply layernorm and attention over the desired
+        # dimensions and are then followed by the inverse transposition/permutation
+        # of dimensions
+
+        out = self.norm(out.transpose(-1, -3)).transpose(-1, -3) # layernorm
+
+        for i in range(self.n_blocks):
+            # AXIAL ATTENTIONS BLOCK
+            # ----------------------
+            # ROW ATTENTION
+
+            # out.permute(0, 2, 3, 1) = [4, 190, 200, 64]
+            att, a = self.rowAttentions[i](out.permute(0, 2, 3, 1))
+
+            println("Row 'a' variable", a)
+
+            # att.permute(0, 3, 1, 2) = [4, 64, 190, 200]
+            out = att.permute(0, 3, 1, 2) + out  # row attention + residual connection
+
+            # layernorm
+            out = self.layernorms[i](out.transpose(-1, -3)).transpose(-1, -3)
+
+            # ----------------------
+            # COLUMN ATTENTION
+
+            # out.permute(0, 3, 1, 2) = [4, 190, 200, 64]
+            att, a = self.columnAttentions[i](out.permute(0, 3, 2, 1))
+
+            println("Column 'a' variable", a)
+            attentionmaps.append(a)
+
+            # att.permute(0, 3, 1, 2) = [4, 64, 190, 200]
+            out = att.permute(0, 3, 2, 1) + out  # column attention + residual connection
+
+            # layernorm
+            out = self.layernorms[i](out.transpose(-1, -3)).transpose(-1, -3)
+
+            # ----------------------
+            # FEEDFORWARD
+            out = self.fNNs[i](out) + out
+
+            # Applies the normalization between transformer blocks
+            if i != self.n_blocks - 1:
+                out = self.layernorms[i](out.transpose(-1, -3)).transpose(-1, -3)  # layernorm
+
+        # shape = (batch_size, 1, nb_pairs, seq_len) --> [4, 1, 190, 200]
+        out = self.pwFNN(out)
+
+        # Averaging over positions and removing the extra dimensions
+        # we finally get shape = (batch_size, nb_pairs) --> [4, 190]
+        out = torch.squeeze(torch.mean(out, dim=-1))
+
+        return out, attentionmaps
+
     def _init_seq2pair(self, n_seqs: int, seq_len: int):
         """Initialize Seq2Pair matrix"""
 
@@ -123,44 +259,6 @@ class AttentionNet(nn.Module):
 
         self.seq2pair = seq2pair.to(self.device)
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, List[Any]]:
-        """Does a forward pass through the ML4Phylo network
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input tensor (shape 1\*22\*n_seqs\*seq_len)
-
-        Returns
-        -------
-        torch.Tensor
-            Output tensor (shape 1\*n_pairs)
-        List[Any]
-            Attention maps
-
-        Raises
-        ------
-        ValueError
-            If the tensors aren't the right shape
-        """
-        attentionmaps = []
-        # 2D convolution that gives us the features in the third dimension
-        # (i.e. initial embedding of each amino acid)
-        out = self.block_1_1(x)
-
-        println("Model after first layer:", out)
-
-        out = torch.matmul(self.seq2pair, out.transpose(-1, -2))  # pair representation
-
-        println("Output Model:", out)
-
-        # From here on the tensor has shape (batch_size,features,nb_pairs,seq_len), all
-        # the transpose/permute allow to apply layernorm and attention over the desired
-        # dimensions and are then followed by the inverse transposition/permutation
-        # of dimensions
-
-        return out
-
     def _get_architecture(self) -> Dict[str, Any]:
         """Returns architecture parameters of the model
 
@@ -193,3 +291,87 @@ class AttentionNet(nn.Module):
             },
             path,
         )
+    
+    def infer_dm(
+        self, X: torch.Tensor, ids: Optional[list[str]] = None
+    ) -> skbio.DistanceMatrix:
+        """Infers a phylogenetic distance matrix from embedded alignment tensor
+
+        Parameters
+        ----------
+        X : torch.Tensor
+            Input alignment, embedded as a tensor (shape 22\*n_seq\*seq_len)
+        ids : list[str], optional
+            Identifiers of the sequences in the input tensor, by default None
+
+        Returns
+        -------
+        skbio.DistanceMatrix
+            Phylolgenetic distance matrix inferred by Phyloformer
+
+        Raises
+        ------
+        ValueError
+            If the tensors aren't the right shape
+        """
+
+        # reshape from 22*n_seq*seq_len to 1*22*n_seq*seq_len
+        tensor = X[None, :, :]
+        tensor = tensor.to(self.device)
+
+        # Infer distances
+        with torch.no_grad():
+            predictions, _ = self(tensor.float())
+        predictions = predictions.view(self.n_pairs)
+
+        # Build distance matrix
+        nn_dist = {}
+        cursor = 0
+        for i in range(self.n_seqs):
+            for j in range(self.n_seqs):
+                if i == j:
+                    nn_dist[(i, j)] = 0
+                if i < j:
+                    pred = predictions[cursor].item()
+                    pred = float("%.6f" % (pred))
+                    nn_dist[(i, j)], nn_dist[(j, i)] = pred, pred
+                    cursor += 1
+
+        return skbio.DistanceMatrix(
+            [[nn_dist[(i, j)] for j in range(self.n_seqs)] for i in range(self.n_seqs)],
+            ids=ids,
+        )
+
+    def infer_tree(
+        self,
+        X: torch.Tensor,
+        ids: Optional[list[str]] = None,
+        dm: Optional[skbio.DistanceMatrix] = None,
+    ) -> Tree:
+        """Infers a phylogenetic tree from an embedded alignment tensor
+
+        Parameters
+        ----------
+        X : torch.Tensor
+            Input alignment, embedded as a tensor (shape 22\*n_seq\*seq_len)
+        ids : list[str], optional
+            Identifiers of the sequences in the input tensor, by default None
+        dm : skbio.DistanceMatrix, optional
+            Precomputed distance matrix if you have already run `AttentionNet.infer_dm`
+            on your own, by default None
+
+        Returns
+        -------
+        Tree
+            Phylogenetic tree computed with neighbour joining from the distance matrix
+            inferred by Phyloformer
+
+        Raises
+        ------
+        ValueError
+            If the tensors aren't the right shape
+        """
+        phyloformer_dm = dm if dm is not None else self.infer_dm(X, ids)
+        nn_newick_str = skbio.tree.nj(phyloformer_dm, result_constructor=str)
+
+        return Tree(nn_newick_str)
