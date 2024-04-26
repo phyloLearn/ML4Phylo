@@ -315,7 +315,7 @@ class AttentionNet(nn.Module):
             If the tensors aren't the right shape
         """
 
-        # reshape from 22*n_seq*seq_len to 1*22*n_seq*seq_len
+        # reshape from [22, n_seq, seq_len] to [1, 22, n_seq, seq_len]
         tensor = X[None, :, :]
         tensor = tensor.to(self.device)
 
