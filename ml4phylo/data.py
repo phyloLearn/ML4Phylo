@@ -2,6 +2,7 @@ import os
 from typing import Dict, List, Tuple, Optional
 
 import numpy as np
+import skbio
 import torch
 from ete3 import Tree
 from Bio import SeqIO
@@ -232,3 +233,19 @@ def _read_distances_from_tree(
 
     return distances
 
+def write_dm(dm: skbio.DistanceMatrix, path: str):
+        """Write a distance matrix to disk in the square Phylip matrix format
+
+        Parameters
+        ----------
+        dm : skbio.DistanceMatrix
+            Distance matrix to save
+        path : str
+            Path where to save the matrix
+        """
+
+        with open(path, "w+") as file:
+            file.write(f"{len(dm.ids)}\n")
+            for id, dists in zip(dm.ids, dm.data):
+                line = " ".join(str(dist) for dist in dists)
+                file.write(f"{id}     {line}\n")

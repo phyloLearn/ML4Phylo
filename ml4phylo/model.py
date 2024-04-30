@@ -375,3 +375,63 @@ class AttentionNet(nn.Module):
         nn_newick_str = skbio.tree.nj(phyloformer_dm, result_constructor=str)
 
         return Tree(nn_newick_str)
+
+def _init_model(model: AttentionNet, state_dict: dict, single_gpu: bool):
+    """Loads  a state_dict into a Phyloformer model
+
+    Parameters
+    ----------
+    model : AttentionNet
+        Phyloformer model to populate
+    state_dict : dict
+        State dict to populate the model with
+    single_gpu: bool
+        Wether inference/fine-tuning will be done on a single GPU
+    """
+
+    # Remove "module." from keys for models trained on multiple gpus
+    new_state_dict = (
+        {k.replace("module.", ""): v for k, v in state_dict.items()}
+        if single_gpu
+        else state_dict
+    )
+
+    model.load_state_dict(new_state_dict, strict=True)
+
+
+def load_model(path: str, device: str = "cpu", single_gpu: bool = True) -> AttentionNet:
+    """Load a Phyloformer istance froms disk
+
+    Parameters
+    ----------
+    path : str
+        Path to model saved with AttentionNet.save()
+    device : str, optional
+        Device to load model to ("cpu" or "cuda"), by default "cpu"
+    single_gpu: bool, optional
+        Wether inference/fine-tuning will be done on a single GPU, by default True
+
+    Returns
+    -------
+    AttentionNet
+        Functional instance of AttentionNet for inference/fine-tuning
+
+    Raises
+    ------
+    ValueError
+        If the file does not contain the state_dict and model architecture parameters
+    """
+
+    loaded = torch.load(path, map_location=device)
+    if loaded.get("state_dict") is None or loaded.get("architecture") is None:
+        raise ValueError(
+            "Error loading model. Saved file must contain both a 'state_dict' "
+            "and a 'architecture' entry"
+        )
+
+    # loaded["architecture"].pop("device")
+    model = AttentionNet(**loaded["architecture"], device=device)
+    _init_model(model, loaded["state_dict"], single_gpu)
+    model.to(device)
+
+    return model
