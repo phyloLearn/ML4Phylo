@@ -173,7 +173,7 @@ def training_loop(
 
             with (autocast() if device == "cuda" and amp else nullcontext()):
                 optimizer.zero_grad()
-                outputs, _ = model(inputs)
+                outputs = model(inputs)
                 y_train = torch.squeeze(y_train.type_as(outputs))
                 train_loss = criterion(outputs, y_train)
                 if device == "cuda" and amp:

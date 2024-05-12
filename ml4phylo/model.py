@@ -150,7 +150,6 @@ class AttentionNet(nn.Module):
         ValueError
             If the tensors aren't the right shape
         """
-        attentionmaps = []
         # 2D convolution that gives us the features in the third dimension
         # (i.e. initial embedding of each amino acid)
         out = self.block_1_1(x) # [4, 64, 200, 20]
@@ -175,9 +174,7 @@ class AttentionNet(nn.Module):
             # ROW ATTENTION
 
             # out.permute(0, 2, 3, 1) = [4, 190, 200, 64]
-            att, a = self.rowAttentions[i](out.permute(0, 2, 3, 1))
-
-            println("Row 'a' variable", a)
+            att = self.rowAttentions[i](out.permute(0, 2, 3, 1))
 
             # att.permute(0, 3, 1, 2) = [4, 64, 190, 200]
             out = att.permute(0, 3, 1, 2) + out  # row attention + residual connection
@@ -189,10 +186,7 @@ class AttentionNet(nn.Module):
             # COLUMN ATTENTION
 
             # out.permute(0, 3, 1, 2) = [4, 190, 200, 64]
-            att, a = self.columnAttentions[i](out.permute(0, 3, 2, 1))
-
-            println("Column 'a' variable", a)
-            attentionmaps.append(a)
+            att = self.columnAttentions[i](out.permute(0, 3, 2, 1))
 
             # att.permute(0, 3, 1, 2) = [4, 64, 190, 200]
             out = att.permute(0, 3, 2, 1) + out  # column attention + residual connection
@@ -215,7 +209,7 @@ class AttentionNet(nn.Module):
         # we finally get shape = (batch_size, nb_pairs) --> [4, 190]
         out = torch.squeeze(torch.mean(out, dim=-1))
 
-        return out, attentionmaps
+        return out
 
     def _init_seq2pair(self, n_seqs: int, seq_len: int):
         """Initialize Seq2Pair matrix"""
@@ -321,7 +315,7 @@ class AttentionNet(nn.Module):
 
         # Infer distances
         with torch.no_grad():
-            predictions, _ = self(tensor.float())
+            predictions = self(tensor.float())
         predictions = predictions.view(self.n_pairs)
 
         # Build distance matrix
@@ -336,6 +330,8 @@ class AttentionNet(nn.Module):
                     pred = float("%.6f" % (pred))
                     nn_dist[(i, j)], nn_dist[(j, i)] = pred, pred
                     cursor += 1
+
+        println("Distance Matrix", nn_dist)
 
         return skbio.DistanceMatrix(
             [[nn_dist[(i, j)] for j in range(self.n_seqs)] for i in range(self.n_seqs)],

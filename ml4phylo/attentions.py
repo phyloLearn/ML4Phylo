@@ -43,6 +43,5 @@ class KernelAxialMultiAttention(nn.Module):
         V=Z@KtV
         V=V.transpose(2,3).contiguous().view(Bs,-1,T,N*D)
 
-        a=None
         out=self.proj_drop(self.proj_net(V))
-        return out, a
+        return out
