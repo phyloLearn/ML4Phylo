@@ -1,0 +1,21 @@
+ST	adk	atpG	frdB	fucK	mdh	pgi	recA	clonal_complex
+141	1	1	1	14	74	61	37	ST-139 complex
+142	1	1	1	35	15	53	38	ST-142 complex
+143	1	1	1	38	15	1	5	ST-3 complex
+144	1	1	44	14	61	1	5	ST-389 complex
+145	1	8	1	14	22	14	13	ST-11 complex
+146	11	8	47	7	17	57	41	
+147	1	24	18	14	55	1	5	ST-836 complex
+148	1	40	18	14	55	1	5	ST-836 complex
+149	3	9	8	13	14	8	4	ST-105 complex
+150	5	20	7	15	47	58	29	ST-210 complex
+151	5	20	7	32	26	41	29	ST-584 complex
+152	6	42	43	36	68	52	35	
+153	10	2	15	8	26	62	3	ST-396 complex
+154	37	35	57	14	1	14	5	
+155	16	8	16	16	30	1	3	ST-155 complex
+156	26	2	15	7	22	56	3	ST-472 complex
+157	28	14	4	3	4	3	8	ST-6 complex
+158	28	14	45	1	16	55	1	ST-321 complex
+159	33	8	16	16	17	2	29	ST-107 complex
+160	40	1	1	14	1	59	3	ST-487 complex
