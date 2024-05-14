@@ -1,8 +1,10 @@
+from math import log2, ceil
 import os
 from typing import Dict, List, Tuple, Optional
 
-import numpy as np
 import torch
+import numpy as np
+from utils import println
 from torch.utils.data import Dataset
 
 class TensorDataset(Dataset):
@@ -55,27 +57,48 @@ def load_typing(path: str) -> Tuple[torch.Tensor, List[str]]:
     -------
     Tuple[torch.Tensor, List[str]]
         a tuple containing:
-         - a tensor representing the data (shape 22 * seq_len * n_seq)
+         - a tensor representing the data (shape encoding_size * seq_len * n_seq)
          - a list of ids of the sequences in the alignment
     """
-    # TODO change this comment above --> last line only
-    print("--------------ENCODING--------------")
-
-    # Calculate the maximum number encoding size 
-    # TODO - get the maximum number
-    encoding_size = 9
     tensor_list = []
-    parsed = _parse_typing(path)
+    parsed, encoding_size = _parse_typing(path)
 
     for sequence in parsed.values():
+        """
+            Encodes every sequence obtaining a matrix with 2 dimensions (genome_length, encoding_size)
+            This matrix stores binary values that represent the codification of each genome identifier.
+        """
         encoded_sequence = _binary_encoding(sequence, encoding_size)
+        
+        # Creates a tensor from the encoded sequence inverting his dimension to (encoding_size, genome_length)
+        tensor = torch.from_numpy(encoded_sequence).t()
+        
+        # Reshapes the tensor to a 3-dimensional one
+        reshaped_tensor = tensor.view(encoding_size, 1, -1)
+        
+        tensor_list.append(reshaped_tensor)
+    
+    """
+        Concats all the tensors present in the list.
+        As tensors are made up of 3 dimensions (encoding_size, 1, genome_length), it presents (encoding_size) matrixes.
+        After the concatenation the obtained tensor has matrixes with dimension (n_seqs, genome_length), leading to
+        a tensor of dimensions (encoding_size, n_seqs, genome_length).
+    """
+    concated_tensors = torch.cat(tensor_list, dim=1)
+    
+    """
+        Finally, the transpose of the last two dimensions is performed,
+        resulting in a tensor of dimensions (encoding_size, genome_length, n_seqs).
+    """
+    final_tensor = concated_tensors.transpose(-1 , -2)
+    
+    println("Final Encoded Tensor:", final_tensor.size())
+    
+    return final_tensor, list(parsed.keys())
 
-    print("--------------ENCODING DONE--------------")
-    return 
 
-
-def _parse_typing(path: str) -> Dict[str, str]:
-    """Parses one txt typing data file
+def _parse_typing(path: str) -> Dict[str, list]:
+    """Parses one txt typing data file and calculates the encoding size
 
     Parameters
     ----------
@@ -85,15 +108,28 @@ def _parse_typing(path: str) -> Dict[str, str]:
     Returns
     -------
     Dict[str,str]
-        A dictionnary with ids as keys and typing data as values
+        A dictionary with ids as keys and genome identifiers as values
     """
     with open(path, 'r') as f:
         records = f.readlines()[1:]
 
-    return {rec[0]: rec[1:] for rec in (record.split() for record in records)}
+    highest_gene_id = 0
+    rec_dict = {}
+
+    for rec in (record.split() for record in records):
+        int_geneId_list = [int(i) for i in rec[1:]]
+        
+        # Calculate the maximum number for the encoding size
+        highest_gene_id = max(highest_gene_id, max(int_geneId_list))
+                
+        rec_dict[rec[0]] = int_geneId_list
+                
+    encoding_size = ceil(log2(highest_gene_id))
+    
+    return rec_dict, encoding_size
 
 
-def _binary_encoding(seq: str, encoding_size: int) -> np.ndarray:
+def _binary_encoding(seq: list, encoding_size: int) -> np.ndarray:
     """Encode a sequence with binary encoding
 
     Parameters
@@ -109,4 +145,4 @@ def _binary_encoding(seq: str, encoding_size: int) -> np.ndarray:
     np.ndarray
         Encoded sequence (shape encoding_size * seq_len)
     """
-    return np.array([int(num) for num in [list('{0:0{1}b}'.format(n, encoding_size)) for n in seq]])
+    return np.array([list('{0:0{1}b}'.format(n, encoding_size)) for n in seq]).astype(int)

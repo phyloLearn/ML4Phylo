@@ -1,8 +1,15 @@
 from re import sub, compile
 
+"""
+    Function that prints a value with the corresponding text.
+"""
 def println(txt, param):
     print(txt + "\n", param, "\n")
 
+
+"""
+    Function that splits the typing data into multiple files.
+"""
 def split_typing_data(input_file, output_prefix, number_of_files, lines_per_file):
     # Compile the regular expression
     pattern = compile(r'[a-zA-Z]+-\d+ [a-zA-Z]+')

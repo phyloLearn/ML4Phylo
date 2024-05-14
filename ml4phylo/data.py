@@ -66,14 +66,10 @@ def load_alignment(path: str, isNucleotides: bool = False) -> Tuple[torch.Tensor
          - a list of ids of the sequences in the alignment
 
     """
-    print("--------------ENCODING--------------")
-
     # check if the sequences use the aminoacids alphabet or the nucleotides
     alphabet_size = len(NUCLEOTIDES) if isNucleotides else len(AMINO_ACIDS)
     tensor_list = []
     parsed = _parse_alignment(path)
-
-    println("Alignment parsed:", parsed)
 
     # Iterate over all the sequences present in the dictionary
     for sequence in parsed.values():
@@ -84,23 +80,15 @@ def load_alignment(path: str, isNucleotides: bool = False) -> Tuple[torch.Tensor
         """
         one_hot = _sequence_to_one_hot(sequence, isNucleotides)
 
-        println("One hot encoded seq:", one_hot)
-
         # Creates a tensor from the encoded sequence inverting his dimension to (alphabet_size, sequence_length)
         tensor = torch.from_numpy(one_hot).t()
-
-        println("Tensor obtained from the encoded seq:", tensor)
 
         # Reshapes the tensor to a 3-dimensional one
         reshaped_tensor = tensor.view(alphabet_size, 1, -1)
 
-        println("Reshaped:", reshaped_tensor)
-
         tensor_list.append(                                              
             reshaped_tensor
         )
-
-    println("All sequences:", tensor_list)
 
     """
         Concats all the tensors present in the list.
@@ -110,17 +98,12 @@ def load_alignment(path: str, isNucleotides: bool = False) -> Tuple[torch.Tensor
     """
     concated_tensors = torch.cat(tensor_list, dim=1)
 
-    println("All tensors concat:", concated_tensors)
-
     """
         Finally, the transpose of the last two dimensions is performed,
         resulting in a tensor of dimensions (alphabet_size, seq_length, n_seqs).
     """
     final_tensor = concated_tensors.transpose(-1, -2)
 
-    println("Final Tensor:", final_tensor)
-
-    print("--------------ENCODING DONE--------------")
     return final_tensor, list(parsed.keys())
 
 
@@ -156,6 +139,7 @@ def _sequence_to_one_hot(seq: str, isNucleotides: bool) -> np.ndarray:
     alphabet = NUCLEOTIDES if isNucleotides else AMINO_ACIDS
     return np.array([(alphabet == char).astype(int) for char in seq])
 
+
 def load_tree(path: str) -> Tuple[torch.Tensor, List[Tuple[str, str]]]:
     """Loads a tree as a tensor of pairwise distances, digestible by the ML4Phylo
     network
@@ -176,16 +160,13 @@ def load_tree(path: str) -> Tuple[torch.Tensor, List[Tuple[str, str]]]:
     """
     distances = _read_distances_from_tree(path)
 
-    println("Distance Matrix:", distances)
-
     tensor, ids = [], []
     for pair, distance in distances.items():
         tensor.append(distance)
         ids.append(pair)
 
-    println("Tensor:", tensor)
-
     return (torch.tensor(tensor), ids)
+
 
 def _read_distances_from_tree(
     path: str, normalize: bool = False
@@ -232,6 +213,7 @@ def _read_distances_from_tree(
             distances[key] /= diameter
 
     return distances
+
 
 def write_dm(dm: skbio.DistanceMatrix, path: str):
         """Write a distance matrix to disk in the square Phylip matrix format
