@@ -63,12 +63,17 @@ def load_typing(path: str) -> Tuple[torch.Tensor, List[str]]:
     tensor_list = []
     parsed, encoding_size = _parse_typing(path)
 
+    println("Parsed Typing Data:", parsed)
+    println("Encoding Size:", encoding_size)
+
     for sequence in parsed.values():
         """
             Encodes every sequence obtaining a matrix with 2 dimensions (genome_length, encoding_size)
             This matrix stores binary values that represent the codification of each genome identifier.
         """
         encoded_sequence = _binary_encoding(sequence, encoding_size)
+        
+        println("Encoded Sequence:", encoded_sequence)
         
         # Creates a tensor from the encoded sequence inverting his dimension to (encoding_size, genome_length)
         tensor = torch.from_numpy(encoded_sequence).t()

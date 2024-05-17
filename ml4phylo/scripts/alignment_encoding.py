@@ -17,6 +17,7 @@ def alignment_encoding(aln_dir: str):
         load_typing(os.path.join(aln_dir, aln))
         
         align_encoded += 1
+        
     
     print(f"Encoded {align_encoded} alignments")
 
