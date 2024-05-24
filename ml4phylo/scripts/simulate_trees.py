@@ -58,10 +58,20 @@ def main():
         argument_default=argparse.SUPPRESS
     )
     parser.add_argument(
-        "-n", "--ntrees", type=int, required=False, default=20, help="number of trees"
+        "-n", 
+        "--ntrees", 
+        type=int, 
+        required=False, 
+        default=20, 
+        help="number of trees"
     )
     parser.add_argument(
-        "-l", "--nleaves", type=int, required=False, default=20, help="number of leaves"
+        "-l", 
+        "--nleaves", 
+        type=int, 
+        required=False, 
+        default=20, 
+        help="number of leaves"
     )
     parser.add_argument(
         "-t",

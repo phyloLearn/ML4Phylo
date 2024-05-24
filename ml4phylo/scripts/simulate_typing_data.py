@@ -1,13 +1,7 @@
-import argparse
 import os
-import random
+import argparse
 from tqdm import tqdm
 from data import _parse_alignment
-
-"""------------------------------------------FOR TEST------------------------------------------------------------
-def generate_sequence(length=100):
-    return ''.join(random.choice('ATCG') for _ in range(length))
-------------------------------------------FOR TEST------------------------------------------------------------"""
 
 def is_fasta(path: str) -> bool:
     return path.lower().endswith("fasta") or path.lower().endswith("fa")
@@ -36,21 +30,6 @@ def sequence_to_typing(seq, gene_dic, total_blocks,  block_size, interval_block_
     return typing_seq
     
 def fasta_to_typing(total_blocks, block_size, interval_block_size, alignment):
-    """------------------------------------------FOR TEST------------------------------------------------------------
-    
-    sequence = generate_sequence(90) + "AAAAA" + "AAAAA"
-    sequence2 = generate_sequence(90) + "BBBBB" + "BBBBB"
-    sequence3 = generate_sequence(90) + "AAAAA" + "AAAAA"
-    sequence4 = generate_sequence(90) + "BBBBB" + "BBBBB"
-
-    seqs = {'seq1': sequence, 'seq2': sequence2, 'seq3': sequence3, 'seq4': sequence4}
-    
-    total_blocks = 7
-    block_size = 10
-    interval_block_size = 5
-    
-    ------------------------------------------FOR TEST------------------------------------------------------------"""
-    
     gene_dict = {}
     typing_seqs = {}
     
