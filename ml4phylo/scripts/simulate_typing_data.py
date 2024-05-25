@@ -29,42 +29,43 @@ def sequence_to_typing(seq, gene_dic, total_blocks,  block_size, interval_block_
 
     return typing_seq
     
-def fasta_to_typing(total_blocks, block_size, interval_block_size, alignment):
-    gene_dict = {}
+def fasta_to_typing(total_blocks, block_size, interval_block_size, alignment, gene_dict):
     typing_seqs = {}
     
     for seq_name, seq in alignment.items():
         typing_data = sequence_to_typing(seq, gene_dict, total_blocks, block_size, interval_block_size)
         typing_seqs[seq_name] = typing_data
         
-    return typing_seqs
+    return typing_seqs, gene_dict.keys()
 
 
 def simulate_typing_data(in_dir, out_dir, blocks, block_size, interval_size):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
     
-    counter = 0
-    
+    gene_dict = {}
+
     for alignment in (pbar := tqdm([file for file in os.listdir(in_dir) if is_fasta(file)])):
-        base = alignment.split(".")[0]
-        pbar.set_description(f"Processing {base}")
+        identifier = alignment.split(".")[0]
+        pbar.set_description(f"Processing {identifier}")
         
         alignment_dict = _parse_alignment(os.path.join(in_dir, alignment))
 
-        typing_data_dict = fasta_to_typing(blocks, block_size, interval_size, alignment_dict)
+        typing_data_dict, genes = fasta_to_typing(blocks, block_size, interval_size, alignment_dict, gene_dict)
         
-        output = "\n" # First line needs to be empty to represent the gene names
+        output = "ST\t" + "\t".join(genes) + "\n"
         
+        ST_id = 1
         for typing_seq in typing_data_dict.values():
-            typing_seq_string = '\t'.join([str(gene_id) for gene_id in typing_seq])
+            typing_seq_string = f"{ST_id}\t" + "\t".join([str(gene_id) for gene_id in typing_seq])
             output += typing_seq_string + '\n'
+            ST_id += 1
 
-        with open(os.path.join(out_dir, "typing_data_" + str(counter) + ".txt"), "w") as fout:
+        with open(os.path.join(out_dir, f"{identifier}.txt"), "w") as fout:
             fout.write(output)
+        
+        
     
-        counter += 1
-
 def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

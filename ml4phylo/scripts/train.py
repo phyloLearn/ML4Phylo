@@ -102,7 +102,7 @@ def main():
         "--logfile",
         required=False,
         type=str,
-        default=f"training-{str(datetime.now()).replace(":", "_")}.log",
+        default=f"training-{str(datetime.now()).replace(':', '_')}.log",
         help="path to save log at",
     )
     args = parser.parse_args()

@@ -15,8 +15,8 @@ def is_fasta(path: str) -> bool:
 
 def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: bool):
     for aln in (pbar := tqdm([file for file in os.listdir(aln_dir) if is_fasta(file)])):
-        base = aln.split(".")[0]
-        pbar.set_description(f"Processing {base}")
+        identifier = aln.split(".")[0]
+        pbar.set_description(f"Processing {identifier}")
 
         tensor, ids = load_alignment(os.path.join(aln_dir, aln))
 
@@ -27,9 +27,9 @@ def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: b
 
         dm = model.infer_dm(tensor, ids)
         if save_dm:
-            write_dm(dm, os.path.join(out_dir, f"{base}.pf.dm"))
+            write_dm(dm, os.path.join(out_dir, f"{identifier}.pf.dm"))
         tree = model.infer_tree(tensor, dm=dm)
-        tree.write(outfile=os.path.join(out_dir, f"{base}.pf.nwk"))
+        tree.write(outfile=os.path.join(out_dir, f"{identifier}.pf.nwk"))
 
 
 def main():

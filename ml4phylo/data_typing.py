@@ -61,7 +61,8 @@ def load_typing(path: str) -> Tuple[torch.Tensor, List[str]]:
          - a list of ids of the sequences in the alignment
     """
     tensor_list = []
-    parsed, encoding_size = _parse_typing(path)
+    parsed = _parse_typing(path)
+    encoding_size = 32
 
     println("Parsed Typing Data:", parsed)
     println("Encoding Size:", encoding_size)
@@ -118,20 +119,14 @@ def _parse_typing(path: str) -> Dict[str, list]:
     with open(path, 'r') as f:
         records = f.readlines()[1:]
 
-    highest_gene_id = 0
     rec_dict = {}
 
     for rec in (record.split() for record in records):
         int_geneId_list = [int(i) for i in rec[1:]]
-        
-        # Calculate the maximum number for the encoding size
-        highest_gene_id = max(highest_gene_id, max(int_geneId_list))
                 
         rec_dict[rec[0]] = int_geneId_list
-                
-    encoding_size = ceil(log2(highest_gene_id))
-    
-    return rec_dict, encoding_size
+                    
+    return rec_dict
 
 
 def _binary_encoding(seq: list, encoding_size: int) -> np.ndarray:

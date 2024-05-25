@@ -81,7 +81,7 @@ class AttentionNet(nn.Module):
 
         # Position wise fully connected layer from pair wise averaging procedure
         layers_1_1 = [
-            nn.Conv2d(in_channels=22, out_channels=h_dim, kernel_size=1, stride=1),
+            nn.Conv2d(in_channels=32, out_channels=h_dim, kernel_size=1, stride=1),
             nn.ReLU(),
         ]
         self.block_1_1 = nn.Sequential(*layers_1_1)
