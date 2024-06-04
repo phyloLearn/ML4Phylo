@@ -82,6 +82,13 @@ def main():
         and the metrics will be saved (default: current directory)",
     )
     parser.add_argument(
+        "-it",
+        "--inputType",
+        required=True,
+        type=str,
+        help="Type of input data. Possible values: [nucleotides, aminoacids, typing]",
+    )
+    parser.add_argument(
         "-l",
         "--load",
         required=False,
@@ -149,7 +156,7 @@ def main():
             args.load, device=device
         )
     else:
-        model = AttentionNet(**config)
+        model = AttentionNet(n_channels=args.inputType, **config)
         model.to(device)
         optimizer, scheduler, criterion = init_training(model, **config)
 

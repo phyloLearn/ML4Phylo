@@ -25,6 +25,7 @@ class AttentionNet(nn.Module):
         device: str = "cpu",
         n_seqs: int = 20,
         seq_len: int = 200,
+        n_channels: int = 22,
         **kwargs
     ):
         """Initializes internal Module state
@@ -81,7 +82,7 @@ class AttentionNet(nn.Module):
 
         # Position wise fully connected layer from pair wise averaging procedure
         layers_1_1 = [
-            nn.Conv2d(in_channels=32, out_channels=h_dim, kernel_size=1, stride=1),
+            nn.Conv2d(in_channels=n_channels, out_channels=h_dim, kernel_size=1, stride=1),
             nn.ReLU(),
         ]
         self.block_1_1 = nn.Sequential(*layers_1_1)
@@ -154,12 +155,8 @@ class AttentionNet(nn.Module):
         # (i.e. initial embedding of each amino acid)
         out = self.block_1_1(x) # [4, 64, 200, 20]
 
-        println("Model after first layer:", out.size())
-
         # Pair representation
         out = torch.matmul(self.seq2pair, out.transpose(-1, -2)) # [4, 64, 190, 200]
-
-        println("Pair representation:", out.size())
 
         # From here on the tensor has shape = (batch_size,features,nb_pairs,seq_len), all
         # the transpose/permute allow to apply layernorm and attention over the desired
@@ -214,15 +211,11 @@ class AttentionNet(nn.Module):
     def _init_seq2pair(self, n_seqs: int, seq_len: int):
         """Initialize Seq2Pair matrix"""
 
-        print("------------Seq2Pair------------")
-
         self.n_seqs = n_seqs
         self.seq_len = seq_len
 
         # Calculate all possible combinations of 2 sequences
         self.n_pairs = int(binom(n_seqs, 2))
-
-        println("Number os pairs: ", self.n_pairs)
 
         # Create a tensor with zeros of dimensions (n_pairs, n_seqs)
         seq2pair = torch.zeros(self.n_pairs, self.n_seqs)
@@ -246,10 +239,6 @@ class AttentionNet(nn.Module):
                 seq2pair[k, i] = 1
                 seq2pair[k, j] = 1
                 k = k + 1
-
-        println("Seq2Pair tensor:", seq2pair)
-
-        print("------------Seq2Pair Done------------")
 
         self.seq2pair = seq2pair.to(self.device)
 
@@ -330,8 +319,6 @@ class AttentionNet(nn.Module):
                     pred = float("%.6f" % (pred))
                     nn_dist[(i, j)], nn_dist[(j, i)] = pred, pred
                     cursor += 1
-
-        println("Distance Matrix", nn_dist)
 
         return skbio.DistanceMatrix(
             [[nn_dist[(i, j)] for j in range(self.n_seqs)] for i in range(self.n_seqs)],

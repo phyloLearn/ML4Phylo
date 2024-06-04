@@ -36,7 +36,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=(
             "Predict phylogenetic trees from MSAs "
-            "using the Phyloformer neural network"
+            "using the ML4Phylo neural network"
         )
     )
     parser.add_argument(
@@ -105,7 +105,7 @@ def main():
 
     model.to(device)
 
-    print("Phyloformer predict:\n")
+    print("ML4Phylo predict:\n")
     print(f"Predicting trees for alignments in {args.alidir}")
     print(f"Using the {args.model} model on {device}")
     print(f"Saving predicted trees in {out_dir}")

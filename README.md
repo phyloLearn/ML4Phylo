@@ -4,8 +4,14 @@
 Machine Learning techniques applied to Phylogenetic Analysis
 
 # Dependencies
-The dependencies to be installed are as follows: 
-scipy, numpy, ete3, biopython, dendropy, scikit-bio, tqdm
+The dependencies to be installed are as follows:
+- scipy 
+- numpy 
+- ete3 
+- biopython 
+- dendropy 
+- scikit-bio 
+- tqdm
 
 To install any of these packages you only need to run the command:
 
@@ -39,78 +45,87 @@ After having the dependencies and Seq-Gen ready, you can run the ML4Phylo script
 You should open the command line through the console.bat present in the repo to set the necessary environment variable.
 
 ## Simulate the trees
-simulate_trees \
-    --nleaves <number of leaves in each tree> (default 20) \
-    --ntrees <number of trees> \
-    --type <tree topology> (default uniform) \
-    --output <output directory> \
+```txt
+   simulate_trees
+    --nleaves <number of leaves in each tree> (default 20)
+    --ntrees <number of trees>
+    --type <tree topology> (default uniform)
+    --output <output directory>
     --branchlength <branch lenght distribution> (default uniform)
-
-Exemplo: python .\ml4phylo\scripts\simulate_trees.py ....args......
+```
+Example: python .\ml4phylo\scripts\simulate_trees.py ....args......
 
 ## Simulate the alignments (sequences)
-simulate_alignments \
-    --input <input directory with the .nwk tree files>  \
-    --output <output directory> \
-    --length <length of the simulated sequences> (default 200) \
-    --seqgen <path to Seq-Gen executable> \
-    --model <model of evolution> (default PAM)
-
-Exemplo: python .\ml4phylo\scripts\simulate_alignments.py ....args......
+```txt
+    simulate_alignments
+        --input <input directory with the .nwk tree files>
+        --output <output directory>
+        --length <length of the simulated sequences> (default 200)
+        --seqgen <path to Seq-Gen executable>
+        --model <model of evolution> (default PAM)
+```
+Example: python .\ml4phylo\scripts\simulate_alignments.py ....args......
 
 ## Transforming genetic sequences into typing data
-simulate_typing_data \
-    --input <input directory with the .fasta files>  \
-    --output <output directory> \
-    --blocks <number of blocks for typing data> \
-    --block_size <size of eah block> \
-    --interval <size of the interval between blocks> (default PAM)
-
-Exemplo: python .\ml4phylo\scripts\simulate_typing_data.py ....args......
+```txt
+    simulate_typing_data
+        --input <input directory with the .fasta files>
+        --output <output directory>
+        --blocks <number of blocks for typing data>
+        --block_size <size of eah block>
+        --interval <size of the interval between blocks>
+```
+Example: python .\ml4phylo\scripts\simulate_typing_data.py ....args......
 
 ## Creating tensors for the neural model training
-make_tensors_typing \
-    --treedir <input directory with the .nwk tree files> \
-    --typingdir <input directory with the corresponding .txt typing data files>  \
-    --output <output directory>
-
-Exemplo: python .\ml4phylo\scripts\make_tensors_typing.py ....args......
+```txt
+    make_tensors_typing
+        --treedir <input directory with the .nwk tree files>
+        --typingdir <input directory with the corresponding .txt typing data files>
+        --output <output directory>
+```
+Example: python .\ml4phylo\scripts\make_tensors_typing.py ....args......
 
 ## Train the neural model
-train \
-    --input <input directory containing the tensor pairs on which the model will be trained> \
-    --validation <input directory containing the tensor pairs on which the model will be evaluated. If left empty 10% of the training set will be used as validation data.>  \
-    --config <configuration json file for the hyperparameters>
-    --output <output directory where the model parameters and the metrics will be saved> (default: current directory)
-
-Exemplo: python .\ml4phylo\scripts\train.py ....args......
+```txt
+    train
+        --input <input directory containing the tensor pairs on which the model will be trained>
+        --validation <input directory containing the tensor pairs on which the model will be evaluated. 
+                        If left empty 10% of the training set will be used as validation data.>
+        --config <configuration json file for the hyperparameters>
+        --output <output directory where the model parameters and the metrics will be saved> (default: current directory)
+```
+Example: python .\ml4phylo\scripts\train.py ....args......
 
 If the goal is to train the neural model to use genetic sequences as input data, then after simulating the alignments, it is only necessary to:
-
-make_tensors \
-    --treedir <input directory with the .nwk tree files> \
-    --alidir <input directory with the corresponding .fasta alignments>  \
-    --output <output directory>
-
-Exemplo: python .\ml4phylo\scripts\make_tensors.py ....args......
+```txt
+    make_tensors
+        --treedir <input directory with the .nwk tree files>
+        --alidir <input directory with the corresponding .fasta alignments>
+        --output <output directory>
+        --example <boolean to run on test mode (for small alignments)>
+```
+Example: python .\ml4phylo\scripts\make_tensors.py ....args......
 
 # Instructions for prediction
 In the current state of the project, the scripts responsible for the prediction and evaluation of phylogenetic trees do not work for typing data.
 
 ## Prediction of pair wise distances
-predict \
-    alidir <input directory containing the .fasta alignments> \
-    --output <path to the output directory were the .tree tree files will be saved (default: alidir)> \
-    --model <NN model state dictionary. Possible values are: [seqgen, evosimz, <path/to/model.pt>]> (default: seqgen)
-
-Exemplo: python .\ml4phylo\scripts\predict.py ....args......
+```txt
+    predict
+        alidir <input directory containing the .fasta alignments>
+        --output <path to the output directory were the .tree tree files will be saved (default: alidir)>
+        --model <NN model state dictionary. Possible values are: [seqgen, evosimz, <path/to/model.pt>]> (default: seqgen)
+```
+Example: python .\ml4phylo\scripts\predict.py ....args......
 
 ## Evaluation of the obtained phylogenetic trees
-evaluate \
-    --true <directory containing true trees in .nwk format> \
-    --predictions <directory containing predicted trees in .nwk format>
-
-Exemplo: python .\ml4phylo\scripts\evaluate.py ....args......
+```txt
+    evaluate
+        --true <directory containing true trees in .nwk format>
+        --predictions <directory containing predicted trees in .nwk format>
+```
+Example: python .\ml4phylo\scripts\evaluate.py ....args......
 
 # Final notes
 

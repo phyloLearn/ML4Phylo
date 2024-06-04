@@ -6,8 +6,6 @@ from tqdm import tqdm
 
 from data import load_alignment, load_tree
 
-alignment_example = "small_alignment"
-
 def make_tensors(tree_dir: str, aln_dir: str, out_dir: str, isExample: bool):
     trees = [file for file in os.listdir(tree_dir) if file.endswith(".nwk")]
     for tree_file in (pbar := tqdm(trees)):
