@@ -94,6 +94,7 @@ Example: python .\ml4phylo\scripts\make_tensors_typing.py ....args......
                         If left empty 10% of the training set will be used as validation data.>
         --config <configuration json file for the hyperparameters>
         --output <output directory where the model parameters and the metrics will be saved> (default: current directory)
+        --inputType <type of input data. Possible values: [nucleotides, aminoacids, typing]>
 ```
 Example: python .\ml4phylo\scripts\train.py ....args......
 

@@ -156,6 +156,10 @@ def main():
             args.load, device=device
         )
     else:
+        types = ["nucleotides", "aminoacids", "typing"]
+        if args.inputType not in types:
+            raise ValueError("You must specify one of the following input types: nucleotides, aminoacids, typing")
+        
         model = AttentionNet(n_channels=args.inputType, **config)
         model.to(device)
         optimizer, scheduler, criterion = init_training(model, **config)
