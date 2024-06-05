@@ -140,12 +140,12 @@ Example: python .\ml4phylo\scripts\evaluate.py ....args...... -->
 In \testdata\dataset\training there are some folders you can use to store any values gotten from any operations necessary to train the model:
 
 - \testdata\dataset\training
-    - trees &rarr; store the .nwk files of the generated trees;
-    - alignments &rarr; store the .fasta files of the generated sequence alignments;
-    - typing_data &rarr; store the .txt files of the typing data files;
-    - tensors_sequences &rarr; store the tensor pairs of your sequence alignments;
-    - tensors_typing &rarr; store the tensor pairs of your typing data;
-    - output &rarr; store the output gotten from training the model.
+    - trees &rarr; Store any .nwk files of generated trees;
+    - alignments &rarr; Store any .fasta files of generated sequence alignments;
+    - typing_data &rarr; Store any .txt files of typing data;
+    - tensors_sequences &rarr; Store any tensor pairs of your sequence alignments;
+    - tensors_typing &rarr; Store any tensor pairs of your typing data;
+    - output &rarr; Store any output gotten from training the model.
 
 Feel free to use these existing folders, but you can always have your own!
 
