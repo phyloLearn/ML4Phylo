@@ -90,13 +90,8 @@ def main():
     elif args.gpu and torch.backends.mps.is_available():
         device = "mps"
 
-
     model = None
-    if args.model.lower() == "seqgen":
-        model = seqgen(device=device)
-    elif args.model.lower() == "evosimz":
-        model = evosimz(device=device)
-    elif args.model is not None:
+    if args.model is not None:
         if not os.path.isfile(args.model):
             raise ValueError(f"The specified model file: {args.model} does not exist")
         model = load_model(args.model, device=device)

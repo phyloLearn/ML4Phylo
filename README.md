@@ -42,6 +42,7 @@ The Seq-Gen executable for Windows is already available in the repository. If a 
 # Instructions to train the neural model 
 After having the dependencies and Seq-Gen ready, you can run the ML4Phylo scripts:
 
+In config.json file, you should checked first what device you're planning on using: "cpu" or "cuda". (default is "cuda")
 You should open the command line through the console.bat present in the repo to set the necessary environment variable.
 
 ## Simulate the trees
@@ -85,7 +86,7 @@ make_tensors
     --treedir <input directory with the .nwk tree files>
     --alidir <input directory with the corresponding .fasta alignments>
     --output <output directory>
-    --example <boolean to run on test mode (for small alignments)>
+    --nucleotides <boolean that indicates if it's used nucleotides instead of aminoacids>
 ```
 Example: python .\ml4phylo\scripts\make_tensors.py ....args......
 
@@ -104,14 +105,17 @@ train
     --input <input directory containing the tensor pairs on which the model will be trained>
     --validation <input directory containing the tensor pairs on which the model will be evaluated.>
                     (If left empty 10% of the training set will be used as validation data.)
-    --config <configuration json file for the hyperparameters>
-    --output <output directory where the model parameters and the metrics will be saved>
-    --inputType <type of input data. Possible values: [nucleotides, aminoacids, typing]>
+    --config <configuration json file for the hyperparameters.>
+    --output <output directory where the model parameters and the metrics will be saved.>
+    --input_type <type of input data. Possible values: [nucleotides, aminoacids, typing].> (default: aminoacids)
+    --n_seqs <Number of sequences in input alignments.> (default: 20)
+    --seq_len <Length of sequences in input alignments.> (default: 200)
 ```
 Example: python .\ml4phylo\scripts\train.py ....args......
 
-# Instructions for prediction
+<!-- # Instructions for prediction
 In the current state of the project, the scripts responsible for the prediction and evaluation of phylogenetic trees do not work for typing data.
+
 
 ## Prediction of pair wise distances
 ```txt
@@ -128,8 +132,29 @@ evaluate
     --true <directory containing true trees in .nwk format>
     --predictions <directory containing predicted trees in .nwk format>
 ```
-Example: python .\ml4phylo\scripts\evaluate.py ....args......
+Example: python .\ml4phylo\scripts\evaluate.py ....args...... -->
 
-# Final notes
+# Important Note
 
-In .\testdata\dataset\training, you can find some files of trees, sequences, typing data, and tensor_pairs previously created. You can use these directories to store new files that are created. (It replaces any existing files in that location.)
+## Training folders
+In \testdata\dataset\training there are some folders you can use to store any values gotten from any operations necessary to train the model:
+
+- \testdata\dataset\training
+    - trees &rarr; store the .nwk files of the generated trees;
+    - alignments &rarr; store the .fasta files of the generated sequence alignments;
+    - typing_data &rarr; store the .txt files of the typing data files;
+    - tensors_sequences &rarr; store the tensor pairs of your sequence alignments;
+    - tensors_typing &rarr; store the tensor pairs of your typing data;
+    - output &rarr; store the output gotten from training the model.
+
+Feel free to use these existing folders, but you can always have your own!
+
+## Current non-available scripts
+
+### "predict.py" and "predict_typing.py"
+The prediction scripts "predict.py" and "predict_typing.py" for both sequence alignments and typing data, respectivelly, are momentarily unavailable as these are being worked on at the moment. 
+
+### "evaluate.py"
+The evaluation script "evaluate.py" is also momentarily unavailable as it requires results from the previously mentioned scripts.
+
+
