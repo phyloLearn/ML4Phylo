@@ -149,6 +149,8 @@ In \testdata\dataset\training there are some folders you can use to store any va
 
 Feel free to use these existing folders, but you can always have your own!
 
+**Whatever folder you might be using to store files, they are not emptied if you try to generate new ones! Remember to empty these folders to avoid any possible problems when you want to store any new files!**
+
 ## Current non-available scripts
 
 ### "predict.py" and "predict_typing.py"
