@@ -113,10 +113,6 @@ train
 ```
 Example: python .\ml4phylo\scripts\train.py ....args......
 
-<!-- # Instructions for prediction
-In the current state of the project, the scripts responsible for the prediction and evaluation of phylogenetic trees do not work for typing data.
-
-
 ## Prediction of pair wise distances
 ```txt
 predict
@@ -153,10 +149,10 @@ Feel free to use these existing folders, but you can always have your own!
 
 ## Current non-available scripts
 
-### "predict.py" and "predict_typing.py"
-The prediction scripts "predict.py" and "predict_typing.py" for both sequence alignments and typing data, respectivelly, are momentarily unavailable as these are being worked on at the moment. 
+### "predict_typing.py"
+The prediction script "predict_typing.py" for typing data is momentarily unavailable as it is being worked on at the moment. 
 
 ### "evaluate.py"
-The evaluation script "evaluate.py" is also momentarily unavailable as it requires results from the previously mentioned scripts.
+The evaluation script "evaluate.py" is also momentarily unavailable as it requires a another script not yet worked on.
 
 

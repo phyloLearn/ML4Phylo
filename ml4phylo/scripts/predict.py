@@ -40,7 +40,7 @@ def main():
         )
     )
     parser.add_argument(
-        "alidir",
+        "--alidir",
         type=str,
         help="path to input directory containing the\
     .fasta alignments",
