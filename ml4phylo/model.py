@@ -307,6 +307,11 @@ class AttentionNet(nn.Module):
         ValueError
             If the tensors aren't the right shape
         """
+                # Check if the input tensor has the right shape
+        if X.shape != (self.in_channels, self.seq_len, self.n_seqs):
+            raise ValueError(
+                f"Input tensor shape is: {X.shape}; but ({self.in_channels}, {self.seq_len}, {self.n_seqs}) was expected."
+            )
 
         # reshape from [22, n_seq, seq_len] to [1, 22, n_seq, seq_len]
         tensor = X[None, :, :]
@@ -364,6 +369,12 @@ class AttentionNet(nn.Module):
         ValueError
             If the tensors aren't the right shape
         """
+        # Check if the input tensor has the right shape
+        if X.shape != (self.in_channels, self.seq_len, self.n_seqs):
+            raise ValueError(
+                f"Input tensor shape is: {X.shape}; but ({self.in_channels}, {self.seq_len}, {self.n_seqs}) was expected."
+            )
+
         phyloformer_dm = dm if dm is not None else self.infer_dm(X, ids)
         nn_newick_str = skbio.tree.nj(phyloformer_dm, result_constructor=str)
 
