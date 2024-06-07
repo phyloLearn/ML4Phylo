@@ -116,6 +116,8 @@ train
 Example: python .\ml4phylo\scripts\train.py ....args......
 
 ## Prediction of pair wise distances
+
+### With sequences
 ```txt
 predict
     --alidir <input directory containing the .fasta alignments>
@@ -123,6 +125,15 @@ predict
     --model <NN model state dictionary, path/to/model.pt>
 ```
 Example: python .\ml4phylo\scripts\predict.py ....args......
+
+### With typing data
+```txt
+predict_typing
+    --typingdir <input directory containing the .txt typing data>
+    --output <path to the output directory were the .tree tree files will be saved>
+    --model <NN model state dictionary, path/to/model.pt>
+```
+Example: python .\ml4phylo\scripts\predict_typing.py ....args......
 
 <!-- ## Evaluation of the obtained phylogenetic trees
 ```txt
@@ -153,9 +164,6 @@ Feel free to use these existing folders, but you can always have your own!
 **Whatever folder you might be using to store files, they are not emptied if you try to generate new ones! Remember to empty these folders to avoid any possible problems when you want to store any new files!**
 
 ## Current non-available scripts
-
-### "predict_typing.py"
-The prediction script "predict_typing.py" for typing data is momentarily unavailable as it is being worked on at the moment. 
 
 ### "evaluate.py"
 The evaluation script "evaluate.py" is also momentarily unavailable as it requires a another script not yet worked on.
