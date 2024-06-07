@@ -267,6 +267,7 @@ class AttentionNet(nn.Module):
             "dropout": self.dropout,
             "seq_len": self.seq_len,
             "n_seqs": self.n_seqs,
+            "in_channels": self.in_channels,
         }
 
     def save(self, path: str) -> None:

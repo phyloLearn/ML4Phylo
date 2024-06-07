@@ -4,6 +4,8 @@
 Machine Learning techniques applied to Phylogenetic Analysis
 
 # Dependencies
+Python 3.9 minimum.
+
 The dependencies to be installed are as follows:
 - scipy 
 - numpy 
@@ -139,9 +141,12 @@ In \testdata\dataset\training there are some folders you can use to store any va
     - trees &rarr; Store any .nwk files of generated trees;
     - alignments &rarr; Store any .fasta files of generated sequence alignments;
     - typing_data &rarr; Store any .txt files of typing data;
-    - tensors_sequences &rarr; Store any tensor pairs of your sequence alignments;
-    - tensors_typing &rarr; Store any tensor pairs of your typing data;
-    - output &rarr; Store any output gotten from training the model.
+    - tensors
+        - sequences &rarr; Store any tensor pairs of your sequence alignments;
+        - typing_data &rarr; Store any tensor pairs of your typing data;
+    - models 
+        - sequences &rarr; Store any models gotten from training the model with sequences.
+        - typing_data &rarr; Store any models gotten from training the model with typing data.
 
 Feel free to use these existing folders, but you can always have your own!
 

@@ -9,12 +9,12 @@ from data import write_dm
 from model import AttentionNet, load_model
 
 
-def is_fasta(path: str) -> bool:
-    return path.lower().endswith("fa") or path.lower().endswith("fasta")
+def is_txt(path: str) -> bool:
+    return path.lower().endswith("txt")
 
 
 def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: bool):
-    for aln in (pbar := tqdm([file for file in os.listdir(aln_dir) if is_fasta(file)])):
+    for aln in (pbar := tqdm([file for file in os.listdir(aln_dir) if is_txt(file)])):
         base = aln.split(".")[0]
         pbar.set_description(f"Processing {base}")
 
