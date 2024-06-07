@@ -117,12 +117,12 @@ Example: python .\ml4phylo\scripts\train.py ....args......
 ```txt
 predict
     --alidir <input directory containing the .fasta alignments>
-    --output <path to the output directory were the .tree tree files will be saved (default: alidir)>
-    --model <NN model state dictionary. Possible values are: [seqgen, evosimz, <path/to/model.pt>]> (default: seqgen)
+    --output <path to the output directory were the .tree tree files will be saved>
+    --model <NN model state dictionary, path/to/model.pt>
 ```
 Example: python .\ml4phylo\scripts\predict.py ....args......
 
-## Evaluation of the obtained phylogenetic trees
+<!-- ## Evaluation of the obtained phylogenetic trees
 ```txt
 evaluate
     --true <directory containing true trees in .nwk format>
