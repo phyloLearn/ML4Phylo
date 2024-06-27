@@ -10,7 +10,7 @@ from typing import Optional
 import torch
 from torch.utils.data import DataLoader
 
-from data import TensorDataset
+from data import TensorDataset, DataType
 from model import AttentionNet
 from training import init_training, load_checkpoint, training_loop
 
@@ -82,28 +82,28 @@ def main():
         and the metrics will be saved (default: current directory)",
     )
     parser.add_argument(
-        "-it",
-        "--input_type",
+        "-dt",
+        "--data_type",
         required=False,
-        default="aminoacids",
+        default="AMINO_ACIDS",
         type=str,
-        help="Type of input data. Possible values: [nucleotides, aminoacids, typing]",
+        help="data type to encode: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
     )
     parser.add_argument(
-        "-ns",
-        "--n_seqs",
+        "-nd",
+        "--n_data",
         required=False,
         default=20,
         type=int,
         help="Number of sequences in input alignments.",
     )
     parser.add_argument(
-        "-sl",
-        "--seq_len",
+        "-dl",
+        "--data_len",
         required=False,
         default=200,
         type=int,
-        help="Length of sequences in input alignments.",
+        help="Length of sequences in the alignments or the number of genomes in typing.",
     )
     parser.add_argument(
         "-l",
@@ -173,16 +173,10 @@ def main():
             args.load, device=device
         )
     else:
-        types = {
-            "nucleotides": 4,
-            "aminoacids": 22,
-            "typing": 32
-        }
-
-        if args.input_type not in types:
-            raise ValueError("You must specify one of the following input types: [nucleotides, aminoacids, typing]")
+        if args.data_type not in DataType:
+            raise ValueError(f"Invalid data type: {args.data_type}")
         
-        model = AttentionNet(in_channels=types[args.input_type], n_seqs=args.n_seqs, seq_len=args.seq_len, **config)
+        model = AttentionNet(in_channels=DataType[args.data_type], n_data=args.n_data, data_len=args.data_len, **config)
 
         model.to(device)
         optimizer, scheduler, criterion = init_training(model, **config)

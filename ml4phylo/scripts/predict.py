@@ -4,25 +4,28 @@ import os
 import torch
 from tqdm import tqdm
 
-from data import load_alignment, write_dm
+from data import load_data, write_dm, DataType
 from model import AttentionNet, load_model
 
 
 def is_fasta(path: str) -> bool:
     return path.lower().endswith("fa") or path.lower().endswith("fasta")
 
+def is_txt(path: str) -> bool:
+    return path.lower().endswith("txt")
 
-def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: bool):
-    for aln in (pbar := tqdm([file for file in os.listdir(aln_dir) if is_fasta(file)])):
+
+def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: bool, data_type: DataType):
+    for aln in (pbar := tqdm([file for file in os.listdir(aln_dir) if is_fasta(file) or is_txt(file)])):
         identifier = aln.split(".")[0]
         pbar.set_description(f"Processing {identifier}")
 
-        tensor, ids = load_alignment(os.path.join(aln_dir, aln))
+        tensor, ids = load_data(os.path.join(aln_dir, aln), data_type)
 
         # check if model input settings match alignment
-        _, seq_len, n_seqs = tensor.shape
-        if model.seq_len != seq_len or model.n_seqs != n_seqs:
-            model._init_seq2pair(n_seqs=n_seqs, seq_len=seq_len)
+        _, data_len, n_data = tensor.shape
+        if model.data_len != data_len or model.n_data != n_data:
+            model._init_seq2pair(n_data=n_data, data_len=data_len)
 
         dm = model.infer_dm(tensor, ids)
         if save_dm:
@@ -39,7 +42,7 @@ def main():
         )
     )
     parser.add_argument(
-        "alidir",
+        "datadir",
         type=str,
         help="path to input directory containing the\
     .fasta alignments",
@@ -77,7 +80,18 @@ def main():
         action="store_true",
         help="save predicted distance matrix (default: false)",
     )
+    parser.add_argument(
+        "-d",
+        "--datatype",
+        required=False,
+        type=str,
+        default="AMINO_ACIDS",
+        help="data type to encode: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+    )
     args = parser.parse_args()
+
+    if args.data_type not in DataType:
+        raise ValueError(f"Invalid data type: {args.data_type}")
 
     out_dir = args.output if args.output is not None else args.alidir
     if out_dir != "." and not os.path.exists(out_dir):
@@ -107,7 +121,7 @@ def main():
         print(f"Saving Distance matrices in {out_dir}")
     print()
 
-    make_predictions(model, args.alidir, out_dir, args.dm)
+    make_predictions(model, args.datadir, out_dir, args.dm, DataType[args.datatype])
 
     print("\nDone!")
 

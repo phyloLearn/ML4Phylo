@@ -4,18 +4,18 @@ import os
 import torch
 from tqdm import tqdm
 
-from data import load_alignment, load_tree
+from data import load_tree, load_data, DataType
 
-def make_tensors(tree_dir: str, aln_dir: str, out_dir: str, isNucleotides: bool):
+def make_tensors(tree_dir: str, data_dir: str, out_dir: str, data_type: DataType):
     trees = [file for file in os.listdir(tree_dir) if file.endswith(".nwk")]
     for tree_file in (pbar := tqdm(trees)):
         identifier = tree_file.rstrip(".nwk")
         pbar.set_description(f"Processing {identifier}")
         tree_tensor, _ = load_tree(os.path.join(tree_dir, tree_file))
-        aln_tensor, _ = load_alignment(os.path.join(aln_dir, f"{identifier}.fasta"), isNucleotides)
+        data_tensor, _ = load_data(os.path.join(data_dir, f"{identifier}{".txt" if data_type == DataType.TYPING else ".fasta"}"), data_type)
 
         torch.save(
-            {"X": aln_tensor, "y": tree_tensor},
+            {"X": data_tensor, "y": tree_tensor},
             os.path.join(out_dir, f"{identifier}.tensor_pair"),
         )
 
@@ -32,11 +32,11 @@ def main():
         help="path to input directory containing the .nwk tree files",
     )
     parser.add_argument(
-        "-a",
-        "--alidir",
+        "-d",
+        "--datadir",
         required=True,
         type=str,
-        help="path to input directory containing corresponding .fasta alignments",
+        help="path to input directory containing corresponding data files: [.fasta for alignments or .txt for typing data]",
     )
     parser.add_argument(
         "-o",
@@ -47,17 +47,22 @@ def main():
         help="path to output directory (default: current directory)",
     )
     parser.add_argument(
-        "-n",
-        "--nucleotides",
-        action="store_true",
-        help="boolean that indicates if it's used nucleotides instead of aminoacids",
+        "-dt",
+        "--data_type",
+        required=False,
+        default="AMINO_ACIDS",
+        type=str,
+        help="data type to encode: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
     )
     args = parser.parse_args()
 
     if not os.path.exists(args.output):
         os.mkdir(args.output)
+    
+    if args.data_type not in DataType:
+        raise ValueError(f"Invalid data type: {args.data_type}")
 
-    make_tensors(args.treedir, args.alidir, args.output, args.nucleotides)
+    make_tensors(args.treedir, args.datadir, args.output, DataType[args.data_type])
 
 
 if __name__ == "__main__":
