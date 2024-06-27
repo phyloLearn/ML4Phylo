@@ -7,6 +7,7 @@ from ete3 import Tree
 from tqdm import tqdm
 from data import _parse_alignment, _parse_typing
 from sklearn.metrics import DistanceMetric
+from data import DataType
 
 
 def is_fasta(path: str) -> bool:
@@ -16,13 +17,13 @@ def is_txt(path: str) -> bool:
     return path.lower().endswith("txt")
 
 
-def predict_true_trees(in_dir: str, out_dir: str, data_type: str):
+def predict_true_trees(in_dir: str, out_dir: str, data_type: DataType):
     for aln in (pbar := tqdm([file for file in os.listdir(in_dir) if is_fasta(file) or is_txt(file)])):
         identifier = aln.split(".")[0]
         pbar.set_description(f"Processing {identifier}")
         
         path = os.path.join(in_dir, aln)
-        matrix, alignment = true_trees_typing(path) if data_type == "TYPING" else true_trees_sequences(path)
+        matrix, alignment = true_trees_typing(path) if data_type == DataType.TYPING else true_trees_sequences(path)
         
         dist_matrix = skbio.DistanceMatrix(matrix, ids=list(alignment.keys()))
         newick_tree = skbio.tree.nj(dist_matrix, result_constructor=str)
@@ -85,7 +86,7 @@ def main():
     .nwk tree files will be saved",
     )
     parser.add_argument(
-        "-d",
+        "-dt",
         "--data_type",
         required=False,
         type=str,
@@ -94,7 +95,12 @@ def main():
     )
     args = parser.parse_args()
 
-    predict_true_trees(args.indir, args.outdir, args.data_type)
+    data_type = args.data_type.upper()
+
+    if data_type not in [type.name for type in DataType]:
+        raise ValueError(f"Invalid data type: {args.data_type}")
+
+    predict_true_trees(args.indir, args.outdir, DataType[data_type])
 
     print("\nDone!")
 

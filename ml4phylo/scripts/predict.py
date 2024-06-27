@@ -42,7 +42,8 @@ def main():
         )
     )
     parser.add_argument(
-        "datadir",
+        "-dd",
+        "--datadir",
         type=str,
         help="path to input directory containing the\
     .fasta alignments",
@@ -53,7 +54,7 @@ def main():
         type=str,
         required=False,
         help="path to the output directory were the\
-    .tree tree files will be saved (default: alidir)",
+    .tree tree files will be saved (default: datadir)",
     )
     parser.add_argument(
         "-m",
@@ -81,8 +82,8 @@ def main():
         help="save predicted distance matrix (default: false)",
     )
     parser.add_argument(
-        "-d",
-        "--datatype",
+        "-dt",
+        "--data_type",
         required=False,
         type=str,
         default="AMINO_ACIDS",
@@ -90,10 +91,12 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.data_type not in DataType:
+    data_type = args.data_type.upper()
+
+    if data_type not in [type.name for type in DataType]:
         raise ValueError(f"Invalid data type: {args.data_type}")
 
-    out_dir = args.output if args.output is not None else args.alidir
+    out_dir = args.output if args.output is not None else args.datadir
     if out_dir != "." and not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
@@ -114,14 +117,14 @@ def main():
     model.to(device)
 
     print("ML4Phylo predict:\n")
-    print(f"Predicting trees for alignments in {args.alidir}")
+    print(f"Predicting trees for alignments in {args.datadir}")
     print(f"Using the {args.model} model on {device}")
     print(f"Saving predicted trees in {out_dir}")
     if args.dm:
         print(f"Saving Distance matrices in {out_dir}")
     print()
 
-    make_predictions(model, args.datadir, out_dir, args.dm, DataType[args.datatype])
+    make_predictions(model, args.datadir, out_dir, args.dm, DataType[data_type])
 
     print("\nDone!")
 

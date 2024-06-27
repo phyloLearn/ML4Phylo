@@ -32,7 +32,7 @@ def main():
         help="path to input directory containing the .nwk tree files",
     )
     parser.add_argument(
-        "-d",
+        "-dd",
         "--datadir",
         required=True,
         type=str,
@@ -59,10 +59,12 @@ def main():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
     
-    if args.data_type not in DataType:
+    data_type = args.data_type.upper()
+
+    if data_type not in [type.name for type in DataType]:
         raise ValueError(f"Invalid data type: {args.data_type}")
 
-    make_tensors(args.treedir, args.datadir, args.output, DataType[args.data_type])
+    make_tensors(args.treedir, args.datadir, args.output, DataType[data_type])
 
 
 if __name__ == "__main__":

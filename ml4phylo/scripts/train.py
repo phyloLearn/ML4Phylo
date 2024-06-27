@@ -173,10 +173,12 @@ def main():
             args.load, device=device
         )
     else:
-        if args.data_type not in DataType:
+        data_type = args.data_type.upper()
+
+        if data_type not in [type.name for type in DataType]:
             raise ValueError(f"Invalid data type: {args.data_type}")
         
-        model = AttentionNet(in_channels=DataType[args.data_type], n_data=args.n_data, data_len=args.data_len, **config)
+        model = AttentionNet(in_channels=DataType[data_type].value, n_data=args.n_data, data_len=args.data_len, **config)
 
         model.to(device)
         optimizer, scheduler, criterion = init_training(model, **config)
