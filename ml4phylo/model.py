@@ -140,7 +140,7 @@ class AttentionNet(nn.Module):
         Parameters
         ----------
         x : torch.Tensor
-            Input tensor (shape 1\*22\*n_data\*data_len)
+            Input tensor (shape 1\*encoding_size\*n_data\*data_len)
 
         Returns
         -------
@@ -293,14 +293,14 @@ class AttentionNet(nn.Module):
         Parameters
         ----------
         X : torch.Tensor
-            Input alignment, embedded as a tensor (shape 22\*n_seq\*data_len)
+            Input alignment, embedded as a tensor (shape encoding_size\*n_seq\*data_len)
         ids : list[str], optional
             Identifiers of the sequences in the input tensor, by default None
 
         Returns
         -------
         skbio.DistanceMatrix
-            Phylolgenetic distance matrix inferred by Phyloformer
+            Phylolgenetic distance matrix inferred by ML4Phylo
 
         Raises
         ------
@@ -351,7 +351,7 @@ class AttentionNet(nn.Module):
         Parameters
         ----------
         X : torch.Tensor
-            Input alignment, embedded as a tensor (shape 22\*n_seq\*data_len)
+            Input alignment, embedded as a tensor (shape encoding_size\*n_seq\*data_len)
         ids : list[str], optional
             Identifiers of the sequences in the input tensor, by default None
         dm : skbio.DistanceMatrix, optional
@@ -362,7 +362,7 @@ class AttentionNet(nn.Module):
         -------
         Tree
             Phylogenetic tree computed with neighbour joining from the distance matrix
-            inferred by Phyloformer
+            inferred by ML4Phylo
 
         Raises
         ------
@@ -381,7 +381,7 @@ class AttentionNet(nn.Module):
         return Tree(nn_newick_str)
 
 def _init_model(model: AttentionNet, state_dict: dict, single_gpu: bool):
-    """Loads  a state_dict into a ML4Phylo model
+    """Loads a state_dict into a ML4Phylo model
 
     Parameters
     ----------

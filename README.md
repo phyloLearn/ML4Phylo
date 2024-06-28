@@ -106,6 +106,19 @@ train
 ```
 Example: python .\ml4phylo\scripts\train.py ....args......
 
+## Alignments with Intervals
+Instead of converting the sequences to typing data, it is also possible, for training purposes, to split these sequences into blocks without converting them to genome identifiers.
+```txt
+alignments_intervals
+    --input <path to input directory containing the .fasta files>
+    --output <path to output directory>
+    --blocks <number of blocks of sequences required>
+    --block_size <size of the blocks of sequences required>
+    --interval <size of the interval between blocks of sequences>
+```
+Example: python .\ml4phylo\scripts\alignments_intervals.py ....args......
+
+
 ## Prediction of pair wise distances
 
 ### With sequences

@@ -10,11 +10,11 @@ def sequence_to_typing(seq, gene_dic, total_blocks,  block_size, interval_block_
     n_blocks = 0
     typing_seq = []
     
-    for char in range(0, len(seq), block_size + interval_block_size):
-        if char + block_size > len(seq) or n_blocks >= total_blocks:
+    for i in range(0, len(seq), block_size + interval_block_size):
+        if i + block_size > len(seq) or n_blocks >= total_blocks:
             break
         
-        current_block = seq[char:char + block_size]
+        current_block = seq[i:i + block_size]
         n_blocks += 1
         
         current_gene = "gene_" + str(n_blocks)
