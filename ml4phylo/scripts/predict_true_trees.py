@@ -74,8 +74,8 @@ def main():
         "-i",
         "--indir",
         type=str,
-        help="path to input directory containing the\
-    .fasta alignments",
+        help="path to input directory containing corresponding\
+            data files: [.fasta for alignments or .txt for typing data]",
     )
     parser.add_argument(
         "-o",
@@ -91,7 +91,7 @@ def main():
         required=False,
         type=str,
         default="AMINO_ACIDS",
-        help="data type to encode: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
     )
     args = parser.parse_args()
 

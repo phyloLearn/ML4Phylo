@@ -86,20 +86,11 @@ Example: python .\ml4phylo\scripts\simulate_typing_data.py ....args......
 ```txt
 make_tensors
     --treedir <input directory with the .nwk tree files>
-    --alidir <input directory with the corresponding .fasta alignments>
+    --datadir <input directory containing corresponding data files: [.fasta for alignments or .txt for typing data]>
     --output <output directory>
-    --nucleotides <boolean that indicates if it's used nucleotides instead of aminoacids>
+    --data_type <type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]> (default: AMINO_ACIDS)
 ```
 Example: python .\ml4phylo\scripts\make_tensors.py ....args......
-
-### With typing data
-```txt
-make_tensors_typing
-    --treedir <input directory with the .nwk tree files>
-    --typingdir <input directory with the corresponding .txt typing data files>
-    --output <output directory>
-```
-Example: python .\ml4phylo\scripts\make_tensors_typing.py ....args......
 
 ## Train the neural model
 ```txt
@@ -109,9 +100,9 @@ train
                     (If left empty 10% of the training set will be used as validation data.)
     --config <configuration json file for the hyperparameters.>
     --output <output directory where the model parameters and the metrics will be saved.>
-    --input_type <type of input data. Possible values: [nucleotides, aminoacids, typing].> (default: aminoacids)
-    --n_seqs <Number of sequences in input alignments.> (default: 20)
-    --seq_len <Length of sequences in input alignments.> (default: 200)
+    --data_type <type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING].> (default: AMINO_ACIDS)
+    --n_data <Number of sequences in input alignments.> (default: 20)
+    --data_len <Length of sequences in the alignments or the number of genomes in typing.> (default: 200)
 ```
 Example: python .\ml4phylo\scripts\train.py ....args......
 
@@ -120,38 +111,23 @@ Example: python .\ml4phylo\scripts\train.py ....args......
 ### With sequences
 ```txt
 predict
-    --alidir <input directory containing the .fasta alignments>
+    --datadir <path to input directory containing corresponding data files: [.fasta for alignments or .txt for typing data]>
     --output <path to the output directory were the .tree tree files will be saved>
     --model <NN model state dictionary, path/to/model.pt>
+    --data_type <type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING].> (default: AMINO_ACIDS)
 ```
 Example: python .\ml4phylo\scripts\predict.py ....args......
-
-### With typing data
-```txt
-predict_typing
-    --typingdir <input directory containing the .txt typing data>
-    --output <path to the output directory were the .tree tree files will be saved>
-    --model <NN model state dictionary, path/to/model.pt>
-```
-Example: python .\ml4phylo\scripts\predict_typing.py ....args......
 
 ## Prediction of true trees
 
 ### With sequences
 ```txt
 predict_true_trees
-    --indir <input directory containing the .fasta alignments>
+    --indir <path to input directory containing corresponding data files: [.fasta for alignments or .txt for typing data]>
     --outdir <output directory were the .nwk tree files will be saved>
+    --data_type <type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING].> (default: AMINO_ACIDS)
 ```
-Example: python .\ml4phylo\scripts\predict_true_trees.pt ....args......
-
-### With typing data
-```txt
-predict_true_trees_typing
-    --indir <input directory containing the .txt typing data>
-    --outdir <output directory were the .nwk tree files will be saved>
-```
-Example: python .\ml4phylo\scripts\predict_true_trees_typing.py ....args.......
+Example: python .\ml4phylo\scripts\predict_true_trees.py ....args......
 
 ## Evaluation of the obtained phylogenetic trees
 ```txt

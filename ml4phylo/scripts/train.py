@@ -87,7 +87,7 @@ def main():
         required=False,
         default="AMINO_ACIDS",
         type=str,
-        help="data type to encode: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
     )
     parser.add_argument(
         "-nd",

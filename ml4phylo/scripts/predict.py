@@ -45,8 +45,8 @@ def main():
         "-dd",
         "--datadir",
         type=str,
-        help="path to input directory containing the\
-    .fasta alignments",
+        help="path to input directory containing corresponding\
+            data files: [.fasta for alignments or .txt for typing data]",
     )
     parser.add_argument(
         "-o",
@@ -63,8 +63,7 @@ def main():
         required=False,
         default="seqgen",
         help=(
-            "path to the NN model's state dictionary. Possible values are: "
-            "[seqgen, evosimz, <path/to/model.pt>] (default: seqgen)"
+            "path to the NN model state dictionary, path/to/model.pt"
         ),
     )
     parser.add_argument(
@@ -87,7 +86,7 @@ def main():
         required=False,
         type=str,
         default="AMINO_ACIDS",
-        help="data type to encode: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
     )
     args = parser.parse_args()
 

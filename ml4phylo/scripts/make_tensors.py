@@ -36,7 +36,8 @@ def main():
         "--datadir",
         required=True,
         type=str,
-        help="path to input directory containing corresponding data files: [.fasta for alignments or .txt for typing data]",
+        help="path to input directory containing corresponding\
+            data files: [.fasta for alignments or .txt for typing data]",
     )
     parser.add_argument(
         "-o",
@@ -52,7 +53,7 @@ def main():
         required=False,
         default="AMINO_ACIDS",
         type=str,
-        help="data type to encode: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
     )
     args = parser.parse_args()
 
