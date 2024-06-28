@@ -12,7 +12,8 @@ The dependencies to be installed are as follows:
 - ete3 
 - biopython 
 - dendropy 
-- scikit-bio 
+- scikit-bio
+- scikit-learn
 - tqdm
 
 To install any of these packages you only need to run the command:
@@ -107,6 +108,7 @@ train
 Example: python .\ml4phylo\scripts\train.py ....args......
 
 ## Prediction of pair wise distances
+Its objective is to predict the pairwise distances of the provided data, whether they are sequences or typing data.
 
 ### With sequences
 ```txt
@@ -119,6 +121,8 @@ predict
 Example: python .\ml4phylo\scripts\predict.py ....args......
 
 ## Prediction of true trees
+It is responsible for predicting the trees whose distance matrices are obtained through Hamming Distance. 
+These will be used to compare with the trees obtained by ML4Phylo.
 
 ### With sequences
 ```txt
