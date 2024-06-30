@@ -33,6 +33,7 @@ def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: b
         tree = model.infer_tree(tensor, dm=dm)
         tree.write(outfile=os.path.join(out_dir, f"{identifier}.pf.nwk"))
 
+DATA_TYPES = DataType.toList()
 
 def main():
     parser = argparse.ArgumentParser(
@@ -85,8 +86,9 @@ def main():
         "--data_type",
         required=False,
         type=str,
-        default="AMINO_ACIDS",
-        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        default=DataType.AMINO_ACIDS.name,
+        choices=DATA_TYPES,
+        help=f"type of input data. Choices: {DATA_TYPES}",
     )
     args = parser.parse_args()
 

@@ -19,6 +19,9 @@ class DataType(Enum):
     AMINO_ACIDS = len(AMINO_ACIDS_LIST)
     TYPING = 32
 
+    def toList(self):
+        return [type.name for type in DataType]
+
 class TensorDataset(Dataset):
     """A Dataset class to train ML4Phylo networks"""
 

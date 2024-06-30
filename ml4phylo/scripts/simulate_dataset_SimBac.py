@@ -29,13 +29,15 @@ def main():
         argument_default=argparse.SUPPRESS,
     )
     parser.add_argument(
-        "-to", "--tree_output", 
+        "-to", 
+        "--tree_output", 
         required=True, 
         type=str, 
         help="path to the output directory were the .nwk tree files will be saved"
     )
     parser.add_argument(
-        "-ao", "--ali_output", 
+        "-ao", 
+        "--ali_output", 
         required=True, 
         type=str, 
         help="path to the output directory were the .fasta alignments files will be saved"

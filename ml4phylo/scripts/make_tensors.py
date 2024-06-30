@@ -22,6 +22,7 @@ def make_tensors(tree_dir: str, data_dir: str, out_dir: str, data_type: DataType
             os.path.join(out_dir, f"{identifier}.tensor_pair"),
         )
 
+DATA_TYPES = DataType.toList() 
 
 def main():
     parser = argparse.ArgumentParser(
@@ -54,9 +55,10 @@ def main():
         "-dt",
         "--data_type",
         required=False,
-        default="AMINO_ACIDS",
+        default=DataType.AMINO_ACIDS.name,
+        choices=DATA_TYPES,
         type=str,
-        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        help=f"type of input data. Choices: {DATA_TYPES}",
     )
     args = parser.parse_args()
 

@@ -22,9 +22,7 @@ except ImportError:
     from yaml import Loader
 
 
-
-
-def train(device: str, wandb_mode: str):
+def train(device: str, wandb_mode: str, in_dir: str, out_dir: str):
     with wandb.init(mode=wandb_mode) as wandb_run:
         config = wandb_run.config
         
@@ -33,7 +31,7 @@ def train(device: str, wandb_mode: str):
         torch.cuda.manual_seed(config.seed)
 
         # load dataset
-        dataset = os.path.join('./datasets', config.dataset)
+        dataset = os.path.join(in_dir, config.dataset)
         tensor_files = list(os.listdir(dataset))
         n_tensors = int(len(tensor_files) * (1 - config.train_fraction))
         sampled_indices = set(random.Random(config.seed).sample(range(len(tensor_files)), n_tensors))
@@ -64,7 +62,7 @@ def train(device: str, wandb_mode: str):
             )
         
         # train and validation loop
-        output = os.path.join('./train/checkpoints', wandb_run.sweep_id)
+        output = os.path.join(out_dir, wandb_run.sweep_id)
         if not os.path.exists(output):
             os.makedirs(output)
         identifier = wandb_run.id
@@ -205,17 +203,58 @@ def train(device: str, wandb_mode: str):
         
         return best_model, config.epochs
 
+WANDB_LOGGING_MODES = ['online', 'offline', 'disabled']
 
-
-
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', default=['config.yaml', '1'], nargs=2, required=False, help='{<yaml sweep config filepath>, <wandb sweep author/project/id>} <number of runs>')
-    parser.add_argument('-d', '--device', default='cpu', type=str, required=False, help='<torch device>')
-    parser.add_argument('-w', '--wandb', default='online', choices=['online', 'offline', 'disabled'], type=str, required=False, help='WandB logging mode.')
+    parser.add_argument(
+        '-c',
+        '--config',
+        default=['config.yaml', '1'], 
+        nargs=2, 
+        required=False, 
+        help='{<yaml sweep config filepath>, <wandb sweep author/project/id>} <number of runs>'
+    )
+    parser.add_argument(
+        '-d', 
+        '--device', 
+        default='cpu', 
+        type=str, 
+        required=False, 
+        help='<torch device>'
+    )
+    parser.add_argument(
+        '-w', 
+        '--wandb', 
+        default='online', 
+        choices= WANDB_LOGGING_MODES,
+        type=str, 
+        required=False, 
+        help=f'WandB logging mode. Choices: {WANDB_LOGGING_MODES}'
+    )
+    parser.add_argument(
+        "-i",
+        "--input",
+        required=True,
+        type=str,
+        help="/path/ to input directory containing the\
+    the tensor pairs on which the model will be trained",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        required=True,
+        type=str,
+        help="/path/ to output directory where the model parameters\
+        and the metrics will be saved",
+    )
     args = parser.parse_args()
 
     wandb.login()
     sweep_id = wandb.sweep(sweep=yaml.load(open(args.config[0], 'r'), Loader)) if args.config[0].split('.')[-1] in ['yaml', 'yml'] else args.config[0]
-    sweep_agent_function = functools.partial(train, args.device, args.wandb)
+    sweep_agent_function = functools.partial(train, args.device, args.wandb, args.input, args.output)
     wandb.agent(sweep_id=sweep_id, function=sweep_agent_function, count=int(args.config[1]))
+
+
+if __name__ == '__main__':
+    main()

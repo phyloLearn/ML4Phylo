@@ -45,6 +45,7 @@ def init_loggers(log_option: Optional[str], identifier: str, logfile: str):
 
     return writer, log_file
 
+DATA_TYPES = DataType.toList()
 
 def main():
     parser = argparse.ArgumentParser(description="Train a ML4Phylo model")
@@ -75,19 +76,19 @@ def main():
     parser.add_argument(
         "-o",
         "--output",
-        required=False,
-        default=".",
+        required=True,
         type=str,
         help="/path/ to output directory where the model parameters\
-        and the metrics will be saved (default: current directory)",
+        and the metrics will be saved",
     )
     parser.add_argument(
         "-dt",
         "--data_type",
         required=False,
-        default="AMINO_ACIDS",
+        default=DataType.AMINO_ACIDS.name,
+        choices=DATA_TYPES,
         type=str,
-        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        help="type of input data. Choices: {DATA_TYPES}",
     )
     parser.add_argument(
         "-nd",
@@ -175,7 +176,7 @@ def main():
     else:
         data_type = args.data_type.upper()
 
-        if data_type not in [type.name for type in DataType]:
+        if data_type not in DATA_TYPES:
             raise ValueError(f"Invalid data type: {args.data_type}")
         
         model = AttentionNet(in_channels=DataType[data_type].value, n_data=args.n_data, data_len=args.data_len, **config)

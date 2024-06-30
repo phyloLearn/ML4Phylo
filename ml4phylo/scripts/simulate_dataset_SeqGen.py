@@ -110,8 +110,7 @@ def main():
         "-ao",
         "--ali_output",
         type=str,
-        required=False,
-        default=".",
+        required=True,
         help="path to the output directory were the .fasta alignment files will be saved",
     )
     parser.add_argument(

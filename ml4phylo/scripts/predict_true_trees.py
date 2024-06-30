@@ -66,6 +66,8 @@ def true_trees_typing(path):
 
     return dist.pairwise(X, X), alignment
 
+DATA_TYPES = DataType.toList()
+
 def main():
     parser = argparse.ArgumentParser(
         description=(
@@ -93,8 +95,9 @@ def main():
         "--data_type",
         required=False,
         type=str,
-        default="AMINO_ACIDS",
-        help="type of input data. Possible values: [AMINO_ACIDS, NUCLEOTIDES, TYPING]",
+        default=DataType.AMINO_ACIDS.name,
+        choices=DATA_TYPES,
+        help=f"type of input data. Choices: {DATA_TYPES}",
     )
     args = parser.parse_args()
 
