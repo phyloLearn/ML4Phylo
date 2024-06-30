@@ -16,6 +16,10 @@ The dependencies to be installed are as follows:
 - scikit-learn
 - tqdm
 
+For training the neural model it is also required:
+- wandb
+- yaml
+
 To install any of these packages you only need to run the command:
 
 ```txt

@@ -7,6 +7,9 @@ from tqdm import tqdm
 from data import load_tree, load_data, DataType
 
 def make_tensors(tree_dir: str, data_dir: str, out_dir: str, data_type: DataType):
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+
     trees = [file for file in os.listdir(tree_dir) if file.endswith(".nwk")]
     for tree_file in (pbar := tqdm(trees)):
         identifier = tree_file.rstrip(".nwk")

@@ -18,6 +18,9 @@ def is_txt(path: str) -> bool:
 
 
 def predict_true_trees(in_dir: str, out_dir: str, data_type: DataType):
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+
     for aln in (pbar := tqdm([file for file in os.listdir(in_dir) if is_fasta(file) or is_txt(file)])):
         identifier = aln.split(".")[0]
         pbar.set_description(f"Processing {identifier}")
