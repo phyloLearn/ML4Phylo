@@ -101,12 +101,7 @@ def main():
     )
     args = parser.parse_args()
 
-    data_type = args.data_type.upper()
-
-    if data_type not in [type.name for type in DataType]:
-        raise ValueError(f"Invalid data type: {args.data_type}")
-
-    predict_true_trees(args.indir, args.outdir, DataType[data_type])
+    predict_true_trees(args.indir, args.outdir, DataType[args.data_type])
 
     print("\nDone!")
 

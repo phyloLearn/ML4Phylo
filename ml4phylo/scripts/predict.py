@@ -15,12 +15,12 @@ def is_txt(path: str) -> bool:
     return path.lower().endswith("txt")
 
 
-def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: bool, data_type: DataType):
+def make_predictions(model: AttentionNet, aln_dir: str, out_dir: str, save_dm: bool, data_type: DataType, block_size: int = None):
     for aln in (pbar := tqdm([file for file in os.listdir(aln_dir) if is_fasta(file) or is_txt(file)])):
         identifier = aln.split(".")[0]
         pbar.set_description(f"Processing {identifier}")
 
-        tensor, ids = load_data(os.path.join(aln_dir, aln), data_type)
+        tensor, ids = load_data(os.path.join(aln_dir, aln), data_type, block_size)
 
         # check if model input settings match alignment
         _, data_len, n_data = tensor.shape
@@ -90,12 +90,15 @@ def main():
         choices=DATA_TYPES,
         help=f"type of input data. Choices: {DATA_TYPES}",
     )
+    parser.add_argument(
+        "-b",
+        "--block_size",
+        required=False,
+        default=None,
+        type=int,
+        help="size of the block to encode",
+    )
     args = parser.parse_args()
-
-    data_type = args.data_type.upper()
-
-    if data_type not in [type.name for type in DataType]:
-        raise ValueError(f"Invalid data type: {args.data_type}")
 
     out_dir = args.output if args.output is not None else args.datadir
     if out_dir != "." and not os.path.exists(out_dir):
@@ -125,7 +128,7 @@ def main():
         print(f"Saving Distance matrices in {out_dir}")
     print()
 
-    make_predictions(model, args.datadir, out_dir, args.dm, DataType[data_type])
+    make_predictions(model, args.datadir, out_dir, args.dm, DataType[args.data_type], args.block_size)
 
     print("\nDone!")
 

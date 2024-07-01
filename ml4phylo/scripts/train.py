@@ -82,31 +82,6 @@ def main():
         and the metrics will be saved",
     )
     parser.add_argument(
-        "-dt",
-        "--data_type",
-        required=False,
-        default=DataType.AMINO_ACIDS.name,
-        choices=DATA_TYPES,
-        type=str,
-        help="type of input data. Choices: {DATA_TYPES}",
-    )
-    parser.add_argument(
-        "-nd",
-        "--n_data",
-        required=False,
-        default=20,
-        type=int,
-        help="Number of sequences in input alignments.",
-    )
-    parser.add_argument(
-        "-dl",
-        "--data_len",
-        required=False,
-        default=200,
-        type=int,
-        help="Length of sequences in the alignments or the number of genomes in typing.",
-    )
-    parser.add_argument(
         "-l",
         "--load",
         required=False,
@@ -167,23 +142,6 @@ def main():
 
     tb_writer, log_file = init_loggers(args.log, identifier, args.logfile)
 
-    print("Loading model, scheduler and optimizer.")
-    if args.load is not None:
-        print(f"Loading from checkpoint: {args.load}")
-        model, optimizer, scheduler, criterion, _ = load_checkpoint(
-            args.load, device=device
-        )
-    else:
-        data_type = args.data_type.upper()
-
-        if data_type not in DATA_TYPES:
-            raise ValueError(f"Invalid data type: {args.data_type}")
-        
-        model = AttentionNet(in_channels=DataType[data_type].value, n_data=args.n_data, data_len=args.data_len, **config)
-
-        model.to(device)
-        optimizer, scheduler, criterion = init_training(model, **config)
-
     print("Loading training and validation data.")
     if args.validation is not None:
         train_data = DataLoader(
@@ -214,6 +172,20 @@ def main():
     val_len = len(val_data.dataset.pairs)
     print(f"Model will train on {train_len} training and {val_len} validation tensors.")
     print()
+
+    print("Loading model, scheduler and optimizer.")
+    if args.load is not None:
+        print(f"Loading from checkpoint: {args.load}")
+        model, optimizer, scheduler, criterion, _ = load_checkpoint(
+            args.load, device=device
+        )
+    else:
+        in_channels, n_data, data_len = train_data.dataset[0][0].shape
+        
+        model = AttentionNet(in_channels=in_channels, n_data=n_data, data_len=data_len, **config)
+
+        model.to(device)
+        optimizer, scheduler, criterion = init_training(model, **config)
 
     if not os.path.exists(args.output):
         os.makedirs(args.output)

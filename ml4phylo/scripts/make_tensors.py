@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from data import load_tree, load_data, DataType
 
-def make_tensors(tree_dir: str, data_dir: str, out_dir: str, data_type: DataType):
+def make_tensors(tree_dir: str, data_dir: str, out_dir: str, data_type: DataType, block_size: int):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
@@ -15,14 +15,14 @@ def make_tensors(tree_dir: str, data_dir: str, out_dir: str, data_type: DataType
         identifier = tree_file.rstrip(".nwk")
         pbar.set_description(f"Processing {identifier}")
         tree_tensor, _ = load_tree(os.path.join(tree_dir, tree_file))
-        data_tensor, _ = load_data(os.path.join(data_dir, f"{identifier}{".txt" if data_type == DataType.TYPING else ".fasta"}"), data_type)
+        data_tensor, _ = load_data(os.path.join(data_dir, f"{identifier}{".txt" if data_type == DataType.TYPING else ".fasta"}"), data_type, block_size)
 
         torch.save(
             {"X": data_tensor, "y": tree_tensor},
             os.path.join(out_dir, f"{identifier}.tensor_pair"),
         )
 
-DATA_TYPES = DataType.toList() 
+DATA_TYPES = DataType.toList()
 
 def main():
     parser = argparse.ArgumentParser(
@@ -58,19 +58,22 @@ def main():
         default=DataType.AMINO_ACIDS.name,
         choices=DATA_TYPES,
         type=str,
-        help=f"type of input data. Choices: {DATA_TYPES}",
+        help=f"type of input data. Allowed values: {DATA_TYPES}",
+    )
+    parser.add_argument(
+        "-b",
+        "--block_size",
+        required=False,
+        default=None,
+        type=int,
+        help="size of the block to encode",
     )
     args = parser.parse_args()
 
     if not os.path.exists(args.output):
         os.mkdir(args.output)
-    
-    data_type = args.data_type.upper()
 
-    if data_type not in [type.name for type in DataType]:
-        raise ValueError(f"Invalid data type: {args.data_type}")
-
-    make_tensors(args.treedir, args.datadir, args.output, DataType[data_type])
+    make_tensors(args.treedir, args.datadir, args.output, DataType[args.data_type], args.block_size)
 
 
 if __name__ == "__main__":
